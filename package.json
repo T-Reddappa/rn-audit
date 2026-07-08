@@ -1,0 +1,97 @@
+{
+  "name": "rn-audit",
+  "version": "0.0.0",
+  "description": "Static analysis and performance auditing for React Native and Expo projects",
+  "type": "module",
+  "bin": {
+    "rn-audit": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky || true",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "npm run build && npm publish",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "performance",
+    "audit",
+    "static-analysis",
+    "lint",
+    "cli",
+    "typescript",
+    "react",
+    "accessibility",
+    "bundle-size",
+    "code-quality"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treddappa/rn-audit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/treddappa/rn-audit/issues"
+  },
+  "homepage": "https://github.com/treddappa/rn-audit#readme",
+  "author": "",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "chalk": "^5.4.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^13.1.0",
+    "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.28.1",
+    "@eslint/js": "^9.27.0",
+    "@types/node": "^22.15.0",
+    "@vitest/coverage-v8": "^3.2.2",
+    "eslint": "^9.27.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "typescript": "~5.8.0",
+    "typescript-eslint": "^8.38.0",
+    "vitest": "^3.2.2"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yaml,yml}": [
+      "prettier --write"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
