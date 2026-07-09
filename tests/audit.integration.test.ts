@@ -35,7 +35,7 @@ describe("end-to-end audit", () => {
     expect(result.analysis.findings).toHaveLength(3);
     expect(result.analysis.summary.parsedFileCount).toBe(3);
     expect(output).toContain("✓ Project scanned: integration-app");
-    expect(output).toContain("Performance (3)");
+    expect(output).toContain("Performance — 3 issues");
     expect(output).toContain("⚠ Inline Style (3)");
     expect(output).toContain("StyleSheet.create()");
     expect(output).toMatch(/Total Diagnostics\s+3/);

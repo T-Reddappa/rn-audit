@@ -14,6 +14,10 @@ import type { ProjectModel } from "./types/project.js";
 export interface AuditOptions {
   readonly cwd?: string;
   readonly write?: ConsoleWriter;
+  /** Called at each phase boundary so callers can update a progress indicator. */
+  readonly onProgress?: (phase: string) => void;
+  /** When true, show every finding location. Default compact mode truncates. */
+  readonly verbose?: boolean;
 }
 
 export interface AuditResult {
@@ -26,29 +30,39 @@ export interface AuditResult {
 /** Connect discovery, scanning, parsing, the built-in rule, and reporting. */
 export async function runAudit(options: AuditOptions = {}): Promise<AuditResult> {
   const totalStart = performance.now();
+  const progress = options.onProgress;
 
+  const rules = [new InlineStyleRule(), new InlineCallbackRule()];
+
+  progress?.("Discovering project...");
   const discoveryStart = performance.now();
   const project = discoverProject({ cwd: resolve(options.cwd ?? process.cwd()) });
   const discoveryMs = performance.now() - discoveryStart;
 
+  progress?.("Scanning source files...");
   const scannerStart = performance.now();
   const sources = discoverSourceFiles(project);
   const scannerMs = performance.now() - scannerStart;
 
+  progress?.(`Building AST (${sources.files.length} files)...`);
   const astStart = performance.now();
-  const ast = createASTProject(project, sources.files, { eagerParsing: true });
+  const ast = createASTProject(project, sources.files, { eagerParsing: true }, progress);
   const parsedFiles = [...ast.getSourceFiles()];
   const astMs = performance.now() - astStart;
 
+  progress?.(`Analyzing with ${rules.length} rules...`);
   const rulesStart = performance.now();
   const analysis = await runRuleEngine({
     project,
     ast,
     files: sources.files,
-    rules: [new InlineStyleRule(), new InlineCallbackRule()],
+    rules,
     writeSummary: () => undefined,
+    onProgress: progress,
   });
   const rulesMs = performance.now() - rulesStart;
+
+  progress?.("Generating report...");
 
   reportAudit(
     {
@@ -56,6 +70,7 @@ export async function runAudit(options: AuditOptions = {}): Promise<AuditResult>
       sources,
       parsedFiles,
       result: analysis,
+      verbose: options.verbose,
       timings: {
         discoveryMs,
         scannerMs,

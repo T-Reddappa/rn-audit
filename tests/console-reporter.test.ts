@@ -219,7 +219,7 @@ describe("console reporter grouping", () => {
     );
 
     const output = lines.join("\n");
-    expect(output).toContain("Performance (3)");
+    expect(output).toContain("Performance — 3 issues");
     expect(output).toContain("⚠ Inline Style (2)");
     expect(output).toContain("⚠ Inline Callback (1)");
   });

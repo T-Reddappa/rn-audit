@@ -1,11 +1,38 @@
 /** Grouped, developer-friendly console reporter for audit diagnostics. */
 
 import { performance } from "node:perf_hooks";
+import chalk from "chalk";
 import type { ASTSourceFile } from "../ast/types.js";
 import type { RuleEngineResult } from "../rules/engine.js";
 import { FindingCategory, FindingTag, type Finding } from "../rules/finding.js";
 import type { SourceDiscoveryResult } from "../types/file.js";
 import type { ProjectModel } from "../types/project.js";
+
+// ---------------------------------------------------------------------------
+// Color helpers — chalk auto-detects TTY, so tests/CI get plain text
+// ---------------------------------------------------------------------------
+
+const dim = (s: string) => chalk.dim(s);
+const bold = (s: string) => chalk.bold(s);
+const green = (s: string) => chalk.green(s);
+const yellow = (s: string) => chalk.yellow(s);
+const red = (s: string) => chalk.red(s);
+const cyan = (s: string) => chalk.cyan(s);
+
+function categoryColor(category: FindingCategory): (s: string) => string {
+  switch (category) {
+    case FindingCategory.Performance:
+      return yellow;
+    case FindingCategory.Correctness:
+      return red;
+    case FindingCategory.Security:
+      return red;
+    case FindingCategory.Accessibility:
+      return chalk.blue;
+    case FindingCategory.Maintainability:
+      return chalk.magenta;
+  }
+}
 
 export interface AuditTimings {
   readonly discoveryMs: number;
@@ -21,6 +48,8 @@ export interface ConsoleReportInput {
   readonly parsedFiles: readonly ASTSourceFile[];
   readonly result: RuleEngineResult;
   readonly timings: AuditTimings;
+  /** When true, show every location and file. Default compact mode truncates. */
+  readonly verbose?: boolean;
 }
 
 export type ConsoleWriter = (line: string) => void;
@@ -63,6 +92,11 @@ export interface ReportSummary {
 
 const divider = "━".repeat(42);
 const ruleSeparator = "-".repeat(54);
+
+/** Max locations to show per file before collapsing. */
+const MAX_LOCATIONS_PER_FILE = 3;
+/** Max files to show per rule before collapsing. */
+const MAX_FILES_PER_RULE = 8;
 
 const CATEGORY_ORDER: readonly FindingCategory[] = [
   FindingCategory.Performance,
@@ -207,40 +241,64 @@ export function reportAudit(input: ConsoleReportInput, write: ConsoleWriter = co
   const report = buildConsoleReport(input.result.findings);
   const summary = buildReportSummary(input.result, parseFailures.length);
 
-  write(`✓ Project scanned: ${input.project.name}`);
-  write(`✓ ${summary.filesAnalyzed} files analyzed`);
+  write(green(`✓ Project scanned: ${bold(input.project.name)}`));
+  write(green(`✓ ${summary.filesAnalyzed} files analyzed`));
   write("");
 
   if (input.result.findings.length === 0) {
-    write(divider);
-    write("No diagnostics found.");
+    write(dim(divider));
+    write(green("No diagnostics found."));
   } else {
     for (const [index, categoryGroup] of report.entries()) {
       if (index > 0) write("");
-      write(divider);
-      write(`${categoryGroup.label} (${categoryGroup.count})`);
+      write(dim(divider));
+      const issueWord = categoryGroup.count === 1 ? "issue" : "issues";
+      write(
+        bold(
+          `${categoryColor(categoryGroup.category)(categoryGroup.label)} — ${categoryGroup.count} ${issueWord}`,
+        ),
+      );
       write("");
 
       for (const [ruleIndex, ruleGroup] of categoryGroup.rules.entries()) {
         if (ruleIndex > 0) {
           write("");
-          write(ruleSeparator);
+          write(dim(ruleSeparator));
           write("");
         }
 
-        write(`⚠ ${ruleGroup.displayName} (${ruleGroup.count})`);
+        const limitFiles = input.verbose
+          ? ruleGroup.files
+          : ruleGroup.files.slice(0, MAX_FILES_PER_RULE);
+        const hiddenFileCount = ruleGroup.files.length - limitFiles.length;
+
+        write(`${yellow("⚠")} ${bold(ruleGroup.displayName)} ${dim(`(${ruleGroup.count})`)}`);
         write("");
 
-        for (const fileGroup of ruleGroup.files) {
-          write(fileGroup.path);
-          for (const location of fileGroup.locations) {
-            write(`  ${location.line}:${location.column}`);
+        for (const fileGroup of limitFiles) {
+          write(cyan(fileGroup.path));
+
+          const limitLocations = input.verbose
+            ? fileGroup.locations
+            : fileGroup.locations.slice(0, MAX_LOCATIONS_PER_FILE);
+          const hiddenLocCount = fileGroup.locations.length - limitLocations.length;
+
+          for (const location of limitLocations) {
+            write(dim(`  ${location.line}:${location.column}`));
+          }
+          if (hiddenLocCount > 0) {
+            write(dim(`  ... and ${hiddenLocCount} more in this file`));
           }
           write("");
         }
 
+        if (hiddenFileCount > 0) {
+          write(dim(`  ... and ${hiddenFileCount} more files`));
+          write("");
+        }
+
         if (ruleGroup.recommendation) {
-          write("Recommendation");
+          write(green("Recommendation"));
           write("");
           write(ruleGroup.recommendation);
         }
@@ -250,31 +308,31 @@ export function reportAudit(input: ConsoleReportInput, write: ConsoleWriter = co
 
   if (parseFailures.length > 0 || input.result.failures.length > 0) {
     write("");
-    write(divider);
-    write("Failures");
+    write(dim(divider));
+    write(bold("Failures"));
     write("");
-    if (parseFailures.length > 0) write(`  Parse failures: ${parseFailures.length}`);
+    if (parseFailures.length > 0) write(red(`  Parse failures: ${parseFailures.length}`));
     if (input.result.failures.length > 0) {
-      write(`  Rule failures: ${input.result.failures.length}`);
+      write(red(`  Rule failures: ${input.result.failures.length}`));
       for (const failure of input.result.failures) {
-        write(`  - ${failure.ruleId} (${failure.filePath}): ${failure.error.message}`);
+        write(dim(`  - ${failure.ruleId} (${failure.filePath}): ${failure.error.message}`));
       }
     }
   }
 
   write("");
-  write(divider);
-  write("Summary");
+  write(dim(divider));
+  write(bold("Summary"));
   write("");
-  for (const line of formatSummaryRows(summary)) write(line);
+  for (const line of formatSummaryRows(summary)) write(dim(line));
 
   const reporterMs = performance.now() - reporterStart;
   write("");
-  for (const line of formatTimingRows(input.timings, reporterMs)) write(line);
+  for (const line of formatTimingRows(input.timings, reporterMs)) write(dim(line));
 
   if (input.sources.warnings?.length) {
     write("");
-    write(`Scanner warnings: ${input.sources.warnings.length}`);
+    write(yellow(`Scanner warnings: ${input.sources.warnings.length}`));
   }
 }
 

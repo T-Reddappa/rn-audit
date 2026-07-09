@@ -87,11 +87,14 @@ export function createASTProject(
   projectModel: ProjectModel,
   sourceFiles: FileModel[],
   options: ASTProjectOptions = {},
+  onProgress?: (label: string) => void,
 ): IASTProject {
   // ------------------------------------------------------------------
   // Step 1: Locate tsconfig.json
   // ------------------------------------------------------------------
   const tsConfigPath = findTsConfig(projectModel.root);
+
+  onProgress?.("Creating TypeScript program...");
 
   // ------------------------------------------------------------------
   // Step 2: Create the ts-morph Project
@@ -117,8 +120,12 @@ export function createASTProject(
   // Step 3: Add source files and parse
   // ------------------------------------------------------------------
   const fileMap = new Map<string, IASTSourceFile>();
+  const total = sourceFiles.length;
 
-  for (const fileModel of sourceFiles) {
+  for (let i = 0; i < sourceFiles.length; i++) {
+    const fileModel = sourceFiles[i]!;
+    onProgress?.(`Parsing ${i + 1}/${total}: ${fileModel.relativePath}`);
+
     const astSourceFile = addSourceFileToProject(tsMorphProject, fileModel);
 
     if (astSourceFile) {
@@ -129,7 +136,10 @@ export function createASTProject(
   // If eager parsing is requested, resolve all lazy source files now.
   // This triggers parsing for files that haven't been accessed yet.
   if (options.eagerParsing) {
-    for (const [, astFile] of fileMap) {
+    let resolved = 0;
+    for (const [pathStr, astFile] of fileMap) {
+      resolved++;
+      onProgress?.(`Resolving types ${resolved}/${fileMap.size}: ${pathStr}`);
       // Accessing getRoot() forces parsing if the file was lazy
       astFile.getRoot();
     }

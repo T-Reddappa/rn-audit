@@ -63,6 +63,8 @@ export interface RuleEngineOptions {
   readonly configurations?: Readonly<Record<string, RuleConfiguration>>;
   /** Defaults to printing the formatted summary with `console.log`. */
   readonly writeSummary?: (summary: string) => void;
+  /** Called as each rule begins executing so callers can update a progress indicator. */
+  readonly onProgress?: (label: string) => void;
 }
 
 const silentLogger: RuleLogger = Object.freeze({
@@ -85,11 +87,17 @@ export async function runRuleEngine(options: RuleEngineOptions): Promise<RuleEng
   const logger = options.logger ?? silentLogger;
   const services = options.services ?? emptyServices;
 
+  const ruleCount = options.rules.length;
+  let ruleIndex = 0;
+
   for (const rule of options.rules) {
+    ruleIndex++;
     const ruleStart = performance.now();
     let filesAnalyzed = 0;
     let ruleFindingCount = 0;
     let ruleFailureCount = 0;
+
+    options.onProgress?.(`Running rule ${ruleIndex}/${ruleCount}: ${rule.meta.id}`);
 
     for (const { file, sourceFile } of parsedFiles) {
       if (signal.aborted) break;
