@@ -30,7 +30,7 @@
  */
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
-import { resolve, join, basename } from "node:path";
+import { join, basename } from "node:path";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -166,10 +166,7 @@ function detectWorkspaceTool(projectRoot: string): WorkspaceTool {
  * - pnpm: `packages` field in pnpm-workspace.yaml
  * - turborepo/nx: delegates to underlying PM; falls back to package.json
  */
-function extractWorkspacePatterns(
-  projectRoot: string,
-  tool: WorkspaceTool,
-): string[] {
+function extractWorkspacePatterns(projectRoot: string, tool: WorkspaceTool): string[] {
   switch (tool) {
     case "npm":
     case "yarn":
@@ -201,18 +198,14 @@ function extractNpmWorkspacePatterns(projectRoot: string): string[] {
 
     // Array format: "workspaces": ["packages/*", "apps/*"]
     if (Array.isArray(workspaces)) {
-      return workspaces.filter(
-        (w): w is string => typeof w === "string",
-      );
+      return workspaces.filter((w): w is string => typeof w === "string");
     }
 
     // Object format: "workspaces": { "packages": ["packages/*"] }
     if (workspaces && typeof workspaces === "object" && !Array.isArray(workspaces)) {
       const packagesArray = (workspaces as Record<string, unknown>)["packages"];
       if (Array.isArray(packagesArray)) {
-        return packagesArray.filter(
-          (w): w is string => typeof w === "string",
-        );
+        return packagesArray.filter((w): w is string => typeof w === "string");
       }
     }
   } catch {
@@ -309,10 +302,7 @@ function extractPnpmWorkspacePatterns(projectRoot: string): string[] {
  * @param patterns - Glob patterns from workspace config.
  * @returns Validated workspace packages (directories with package.json).
  */
-function resolvePatterns(
-  projectRoot: string,
-  patterns: string[],
-): WorkspacePackage[] {
+function resolvePatterns(projectRoot: string, patterns: string[]): WorkspacePackage[] {
   const packages: WorkspacePackage[] = [];
   const seen = new Set<string>(); // Deduplicate overlapping patterns
 
@@ -332,9 +322,10 @@ function resolvePatterns(
       // Extract package name
       let pkgName = basename(dirPath);
       try {
-        const pkg = JSON.parse(
-          readFileSync(join(dirPath, "package.json"), "utf-8"),
-        ) as Record<string, unknown>;
+        const pkg = JSON.parse(readFileSync(join(dirPath, "package.json"), "utf-8")) as Record<
+          string,
+          unknown
+        >;
         if (typeof pkg["name"] === "string") {
           pkgName = pkg["name"];
         }
@@ -359,10 +350,7 @@ function resolvePatterns(
  * Supports `*` (single directory level) and `**` (recursive).
  * Patterns with unsupported syntax return an empty array.
  */
-function resolveGlobPattern(
-  projectRoot: string,
-  pattern: string,
-): string[] {
+function resolveGlobPattern(projectRoot: string, pattern: string): string[] {
   // Normalize: remove leading ./ if present
   const normalized = pattern.replace(/^\.\//, "");
 
@@ -413,17 +401,13 @@ function resolveGlobPattern(
 /**
  * Read and parse the root package.json.
  */
-function readPackageJson(
-  projectRoot: string,
-): Record<string, unknown> | null {
+function readPackageJson(projectRoot: string): Record<string, unknown> | null {
   const pkgPath = join(projectRoot, "package.json");
 
   if (!existsSync(pkgPath)) return null;
 
   try {
-    return JSON.parse(
-      readFileSync(pkgPath, "utf-8"),
-    ) as Record<string, unknown>;
+    return JSON.parse(readFileSync(pkgPath, "utf-8")) as Record<string, unknown>;
   } catch {
     return null;
   }

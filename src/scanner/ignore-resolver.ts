@@ -40,7 +40,7 @@
  */
 
 import { readFileSync, existsSync } from "node:fs";
-import { resolve, relative, dirname, sep, join } from "node:path";
+import { relative, dirname, sep, join } from "node:path";
 import { ALWAYS_IGNORED_DIRECTORIES, IGNORE_FILE_NAMES } from "./constants.js";
 
 // ---------------------------------------------------------------------------
@@ -120,9 +120,7 @@ export function createIgnorePredicate(
   /**
    * The ignore predicate. Called for every file during traversal.
    */
-  return function isIgnored(
-    absolutePath: string,
-  ): [boolean, string | undefined] {
+  return function isIgnored(absolutePath: string): [boolean, string | undefined] {
     const relativePath = relative(projectRoot, absolutePath);
 
     // --- Check 1: Always-ignored directories ---
@@ -161,10 +159,7 @@ export function createIgnorePredicate(
         const relToNested = relative(nestedIgnore.directory, absolutePath);
         const matched = matchPatterns(relToNested, nestedIgnore.patterns);
         if (matched) {
-          return [
-            true,
-            `${nestedIgnore.path}:${matched.original} (line ${matched.lineNumber})`,
-          ];
+          return [true, `${nestedIgnore.path}:${matched.original} (line ${matched.lineNumber})`];
         }
       }
 
@@ -293,10 +288,7 @@ function parseIgnoreContent(
  * @returns The matching pattern that caused the file to be ignored,
  *   or null if the file is not ignored.
  */
-function matchPatterns(
-  relativePath: string,
-  patterns: CompiledPattern[],
-): CompiledPattern | null {
+function matchPatterns(relativePath: string, patterns: CompiledPattern[]): CompiledPattern | null {
   let lastMatch: CompiledPattern | null = null;
 
   for (const pattern of patterns) {
@@ -336,9 +328,7 @@ function globToRegex(pattern: string): RegExp {
   // Determine if the pattern contains a path separator (anchored pattern)
   // A pattern with a slash (except trailing slash, already stripped) is
   // anchored — it matches relative to the .gitignore location.
-  const hasSlash =
-    pattern.includes("/") ||
-    (pattern.startsWith("/") && pattern.length > 1);
+  const hasSlash = pattern.includes("/") || (pattern.startsWith("/") && pattern.length > 1);
 
   // Build the regex string
   let regexStr = "";

@@ -43,7 +43,13 @@ import { extractMetadata } from "./metadata.js";
 import { UnsupportedProjectError } from "./errors.js";
 
 // Re-export error classes for consumers
-export { DiscoveryError, NoPackageJsonError, NotReactNativeProjectError, UnsupportedProjectError, InvalidConfigurationError } from "./errors.js";
+export {
+  DiscoveryError,
+  NoPackageJsonError,
+  NotReactNativeProjectError,
+  UnsupportedProjectError,
+  InvalidConfigurationError,
+} from "./errors.js";
 
 // Re-export types for convenience
 export type { DiscoveryOptions } from "../types/discovery.js";
@@ -116,11 +122,7 @@ export function discoverProject(options: DiscoveryOptions = {}): ProjectModel {
   // ------------------------------------------------------------------
   // Step 4: Detect project type
   // ------------------------------------------------------------------
-  const typeResult = detectProjectType(
-    root,
-    metadata.dependencies,
-    metadata.devDependencies,
-  );
+  const typeResult = detectProjectType(root, metadata.dependencies, metadata.devDependencies);
 
   // ------------------------------------------------------------------
   // Step 5: Discover configuration files

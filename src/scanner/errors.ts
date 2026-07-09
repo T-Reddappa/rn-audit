@@ -91,12 +91,7 @@ export class ScannerError extends Error {
   /** Underlying system error that triggered this scanner error. */
   public readonly cause?: unknown;
 
-  constructor(
-    code: ScannerErrorCode,
-    message: string,
-    path: string,
-    cause?: unknown,
-  ) {
+  constructor(code: ScannerErrorCode, message: string, path: string, cause?: unknown) {
     super(message);
     // Restore prototype for instanceof checks (required when extending
     // built-in Error in TypeScript targeting ES2015+)
@@ -137,12 +132,7 @@ export class PermissionDeniedError extends ScannerError {
   public readonly syscall: string;
 
   constructor(path: string, syscall: string, cause?: unknown) {
-    super(
-      ScannerErrorCode.PERMISSION_DENIED,
-      `Permission denied: ${path}`,
-      path,
-      cause,
-    );
+    super(ScannerErrorCode.PERMISSION_DENIED, `Permission denied: ${path}`, path, cause);
     Object.setPrototypeOf(this, PermissionDeniedError.prototype);
     this.syscall = syscall;
   }

@@ -31,12 +31,9 @@
  * @module discovery/validator
  */
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import {
-  UnsupportedProjectError,
-  NotReactNativeProjectError,
-} from "./errors.js";
+import { NotReactNativeProjectError } from "./errors.js";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -60,12 +57,12 @@ const MINIMUM_REACT_NATIVE_VERSION = { major: 0, minor: 71, patch: 0 };
  * using react-native-web, not a React Native project.
  */
 const NON_RN_FRAMEWORKS = new Set([
-  "next",       // Next.js
-  "nuxt",       // Nuxt.js
-  "remix",      // Remix
+  "next", // Next.js
+  "nuxt", // Nuxt.js
+  "remix", // Remix
   "@sveltejs/kit", // SvelteKit
-  "gatsby",     // Gatsby
-  "astro",      // Astro
+  "gatsby", // Gatsby
+  "astro", // Astro
 ]);
 
 // ---------------------------------------------------------------------------
@@ -124,10 +121,7 @@ export function validateProject(projectRoot: string): ValidationResult {
     "react-native" in devDependencies ||
     "react-native" in peerDependencies;
 
-  const hasExpo =
-    "expo" in dependencies ||
-    "expo" in devDependencies ||
-    "expo" in peerDependencies;
+  const hasExpo = "expo" in dependencies || "expo" in devDependencies || "expo" in peerDependencies;
 
   if (!hasReactNative && !hasExpo) {
     throw new NotReactNativeProjectError(projectRoot);
@@ -140,7 +134,8 @@ export function validateProject(projectRoot: string): ValidationResult {
     if (framework in allDeps) {
       return {
         isSupported: false,
-        reason: `Project uses "${framework}" which is a web framework. ` +
+        reason:
+          `Project uses "${framework}" which is a web framework. ` +
           "rn-audit only supports React Native and Expo projects. " +
           "If this is a React Native project with a web target, " +
           "please file an issue so we can add support.",
@@ -186,8 +181,8 @@ export function validateProject(projectRoot: string): ValidationResult {
       if (parts[0] !== undefined && !isNaN(parts[0]) && parts[0] < 49) {
         return {
           isSupported: false,
-          reason: `Expo SDK ${cleaned} is not supported. ` +
-            "rn-audit requires Expo SDK 49 or later.",
+          reason:
+            `Expo SDK ${cleaned} is not supported. ` + "rn-audit requires Expo SDK 49 or later.",
         };
       }
     }
@@ -218,9 +213,7 @@ function asRecord(value: unknown): Record<string, unknown> {
  * Complex ranges (like `>=0.71.0 <0.77.0`) are simplified to the lower
  * bound for Phase 1.
  */
-function checkReactNativeVersion(
-  semverRange: string,
-): { supported: boolean; reason?: string } {
+function checkReactNativeVersion(semverRange: string): { supported: boolean; reason?: string } {
   // Strip semver range prefix characters
   const cleaned = semverRange.replace(/^[\^~>=<]+/, "");
 
@@ -246,8 +239,7 @@ function checkReactNativeVersion(
 
   if (
     major < MINIMUM_REACT_NATIVE_VERSION.major ||
-    (major === MINIMUM_REACT_NATIVE_VERSION.major &&
-      minor < MINIMUM_REACT_NATIVE_VERSION.minor)
+    (major === MINIMUM_REACT_NATIVE_VERSION.major && minor < MINIMUM_REACT_NATIVE_VERSION.minor)
   ) {
     return {
       supported: false,

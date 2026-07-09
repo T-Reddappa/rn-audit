@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import { discoverProject, DiscoveryError } from "./discovery/index.js";
-import { discoverSourceFiles } from "./scanner/index.js";
-import type { ProjectModel } from "./types/project.js";
+import { resolve } from "node:path";
+import { runAudit } from "./audit.js";
+import { DiscoveryError } from "./discovery/index.js";
 
 /**
  * Build-time constant injected by tsup.
@@ -18,11 +18,10 @@ const program = new Command();
 
 program
   .name("rn-audit")
-  .description(
-    "Static analysis and performance auditing for React Native and Expo projects",
-  )
+  .description("Static analysis and performance auditing for React Native and Expo projects")
   .version(RN_AUDIT_VERSION, "-v, --version", "Output the current version")
   .helpOption("-h, --help", "Display help information")
+  .argument("[path]", "Project directory to audit", ".")
   .addHelpText(
     "after",
     `
@@ -49,51 +48,10 @@ Documentation: https://github.com/treddappa/rn-audit
  * Future milestones will feed this model into the scanner, parser,
  * and rule engine.
  */
-program.action(() => {
+program.action(async (projectPath: string) => {
   try {
-    // --- Phase 1: Project Discovery ---
-    const project: ProjectModel = discoverProject();
-
-    console.log(`rn-audit initialized successfully.\n`);
-    console.log(`  Project: ${project.name}@${project.version}`);
-    console.log(`  Root: ${project.root}`);
-    console.log(`  Framework: ${project.framework}`);
-    if (project.workflow) {
-      console.log(`  Workflow: ${project.workflow}`);
-    }
-    if (project.hasExpoRouter) {
-      console.log("  Expo Router: yes");
-    }
-    if (project.reactNativeVersion) {
-      console.log(`  React Native: ${project.reactNativeVersion}`);
-    }
-    if (project.expoVersion) {
-      console.log(`  Expo SDK: ${project.expoVersion}`);
-    }
-    if (project.typescriptVersion) {
-      console.log(`  TypeScript: ${project.typescriptVersion}`);
-    }
-    console.log(`  Package manager: ${project.packageManager}`);
-    console.log(`  Config files found: ${countConfigFiles(project)}`);
-
-    // --- Phase 2: Source Discovery ---
-    const sourceResult = discoverSourceFiles(project);
-
-    console.log(`\n  Source files:`);
-    console.log(`    Analyzable: ${sourceResult.files.length}`);
-    console.log(`    Ignored:    ${sourceResult.ignored.length}`);
-    console.log(`    Total:      ${sourceResult.files.length + sourceResult.ignored.length}`);
-    console.log(`    Traversal:  ${sourceResult.traversalTimeMs}ms`);
-
-    // Show extension breakdown
-    const extCounts = countByExtension(sourceResult.files);
-    if (Object.keys(extCounts).length > 0) {
-      const breakdown = Object.entries(extCounts)
-        .sort(([, a], [, b]) => b - a)
-        .map(([ext, count]) => `${ext}: ${count}`)
-        .join(", ");
-      console.log(`    Extensions: ${breakdown}`);
-    }
+    const result = await runAudit({ cwd: resolve(projectPath) });
+    process.exitCode = result.exitCode;
   } catch (error) {
     if (error instanceof DiscoveryError) {
       // User-facing error: the project is not valid or not supported.
@@ -101,7 +59,8 @@ program.action(() => {
       console.error(`\nError: ${error.message}`);
       console.error(`  Directory: ${error.directory}`);
       console.error("\nRun `rn-audit --help` for usage information.");
-      process.exit(2);
+      process.exitCode = 2;
+      return;
     }
 
     // Unexpected error: re-throw so Node.js prints the full stack trace.
@@ -110,30 +69,6 @@ program.action(() => {
   }
 });
 
-/**
- * Count how many configuration files were discovered.
- * Quick summary for the terminal output.
- */
-function countConfigFiles(project: ProjectModel): number {
-  const { configFiles } = project;
-  let count = 0;
-  for (const value of Object.values(configFiles)) {
-    if (value !== null) count++;
-  }
-  return count;
-}
-
-/**
- * Count files by extension for terminal display.
- */
-function countByExtension(files: Array<{ extension: string }>): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const file of files) {
-    counts[file.extension] = (counts[file.extension] ?? 0) + 1;
-  }
-  return counts;
-}
-
 // Parse command-line arguments.
 // program.parse() defaults to process.argv when called with no arguments.
-program.parse();
+await program.parseAsync();

@@ -72,13 +72,35 @@ describe("CLI", () => {
     }
   }
 
-  it("discovers a React Native project and prints its details", () => {
+  it("runs the complete audit for the current project", () => {
     const { stdout, exitCode } = run();
 
     expect(exitCode).toBe(0);
-    expect(stdout).toContain("rn-audit initialized successfully.");
-    expect(stdout).toContain("cli-test-app");
-    expect(stdout).toContain("react-native-cli");
+    expect(stdout).toContain("✓ Project scanned: cli-test-app");
+    expect(stdout).toContain("No diagnostics found.");
+    expect(stdout).toContain("Summary");
+  });
+
+  it("accepts an explicit project path", () => {
+    const { stdout, exitCode } = run(["."]);
+
+    expect(exitCode).toBe(0);
+    expect(stdout).toContain("✓ Project scanned: cli-test-app");
+  });
+
+  it("reports diagnostics and exits 1 when issues are found", () => {
+    writeFileSync(join(tempDir, "App.tsx"), "const App = () => <View style={{ padding: 16 }} />;");
+    writeFileSync(
+      join(tempDir, "tsconfig.json"),
+      JSON.stringify({ compilerOptions: { jsx: "preserve" } }),
+    );
+
+    const { stdout, exitCode } = run();
+
+    expect(exitCode).toBe(1);
+    expect(stdout).toContain("⚠ Inline Style (1)");
+    expect(stdout).toContain("StyleSheet.create()");
+    expect(stdout).toContain("Total Diagnostics");
   });
 
   it("prints version when invoked with --version", () => {

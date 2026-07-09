@@ -42,10 +42,5 @@ export default defineConfig({
   // External packages that should NOT be bundled.
   // Dependencies (not devDependencies) are externalized by default in tsup.
   // We're explicit about it for clarity.
-  external: [
-    "commander",
-    "chalk",
-    "ora",
-    "cli-table3",
-  ],
+  external: ["commander", "chalk", "ora", "cli-table3"],
 });

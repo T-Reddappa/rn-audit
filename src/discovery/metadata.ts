@@ -109,9 +109,7 @@ export function extractMetadata(projectRoot: string): ExtractedMetadata {
   );
 
   // --- Extract Node engine requirement ---
-  const nodeEngine = raw.engines["node"]
-    ? String(raw.engines["node"])
-    : null;
+  const nodeEngine = raw.engines["node"] ? String(raw.engines["node"]) : null;
 
   // --- Detect package manager ---
   const packageManager = detectPackageManager(projectRoot);
@@ -208,9 +206,7 @@ function asString(value: unknown, fallback: string): string {
 function asRecord(value: unknown): Record<string, string> {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     const result: Record<string, string> = {};
-    for (const [key, val] of Object.entries(
-      value as Record<string, unknown>,
-    )) {
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
       if (typeof val === "string") {
         result[key] = val;
       }

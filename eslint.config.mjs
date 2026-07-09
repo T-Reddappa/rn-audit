@@ -9,6 +9,7 @@ export default tseslint.config(
       "coverage/",
       "node_modules/",
       ".changeset/",
+      "tests/fixtures/",
       "*.config.*", // tsup, vitest, etc. config files (checked by tsc instead)
     ],
   },

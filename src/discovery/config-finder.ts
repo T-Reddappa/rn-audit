@@ -48,20 +48,11 @@ const CONFIG_FILE_PATTERNS: ConfigFilePattern[] = [
   },
   {
     key: "babelConfig",
-    names: [
-      "babel.config.js",
-      "babel.config.cjs",
-      "babel.config.mjs",
-      ".babelrc",
-    ],
+    names: ["babel.config.js", "babel.config.cjs", "babel.config.mjs", ".babelrc"],
   },
   {
     key: "metroConfig",
-    names: [
-      "metro.config.js",
-      "metro.config.cjs",
-      "metro.config.mjs",
-    ],
+    names: ["metro.config.js", "metro.config.cjs", "metro.config.mjs"],
   },
   {
     key: "appJson",
@@ -69,10 +60,7 @@ const CONFIG_FILE_PATTERNS: ConfigFilePattern[] = [
   },
   {
     key: "appConfig",
-    names: [
-      "app.config.js",
-      "app.config.ts",
-    ],
+    names: ["app.config.js", "app.config.ts"],
   },
   {
     key: "expoEnvDts",
@@ -80,18 +68,11 @@ const CONFIG_FILE_PATTERNS: ConfigFilePattern[] = [
   },
   {
     key: "tailwindConfig",
-    names: [
-      "tailwind.config.js",
-      "tailwind.config.ts",
-      "tailwind.config.cjs",
-    ],
+    names: ["tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs"],
   },
   {
     key: "nativewindConfig",
-    names: [
-      "nativewind.config.js",
-      "nativewind.config.ts",
-    ],
+    names: ["nativewind.config.js", "nativewind.config.ts"],
   },
   {
     key: "eslintConfig",

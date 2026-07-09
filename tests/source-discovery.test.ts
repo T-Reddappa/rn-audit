@@ -46,12 +46,16 @@ function cleanup(dir: string): void {
 function writePackageJson(dir: string, overrides: Record<string, unknown> = {}): void {
   writeFileSync(
     join(dir, "package.json"),
-    JSON.stringify({
-      name: "test-project",
-      version: "1.0.0",
-      dependencies: { "react-native": "0.76.0", react: "18.3.1" },
-      ...overrides,
-    }, null, 2),
+    JSON.stringify(
+      {
+        name: "test-project",
+        version: "1.0.0",
+        dependencies: { "react-native": "0.76.0", react: "18.3.1" },
+        ...overrides,
+      },
+      null,
+      2,
+    ),
   );
 }
 
@@ -198,10 +202,7 @@ describe("createIgnorePredicate", () => {
   });
 
   it("respects .gitignore patterns", () => {
-    writeFileSync(
-      join(tempDir, ".gitignore"),
-      "*.generated.*\n/dist/\n.env\n",
-    );
+    writeFileSync(join(tempDir, ".gitignore"), "*.generated.*\n/dist/\n.env\n");
 
     const isIgnored = createIgnorePredicate(tempDir);
 
@@ -213,10 +214,7 @@ describe("createIgnorePredicate", () => {
   });
 
   it("handles negation patterns in .gitignore", () => {
-    writeFileSync(
-      join(tempDir, ".gitignore"),
-      ["*.log", "!important.log"].join("\n"),
-    );
+    writeFileSync(join(tempDir, ".gitignore"), ["*.log", "!important.log"].join("\n"));
 
     const isIgnored = createIgnorePredicate(tempDir);
 
@@ -344,10 +342,7 @@ describe("discoverSourceFiles", () => {
   });
 
   it("separates filee into active and ignored buckets", () => {
-    writeFileSync(
-      join(tempDir, ".gitignore"),
-      "*.generated.*\n",
-    );
+    writeFileSync(join(tempDir, ".gitignore"), "*.generated.*\n");
     writeFile(tempDir, "src/App.tsx");
     writeFile(tempDir, "src/code.generated.tsx");
     writeFile(tempDir, "src/types.generated.ts");
@@ -393,9 +388,7 @@ describe("discoverSourceFiles", () => {
 
     // Should find the mobile app's source file
     expect(result.files.length).toBeGreaterThanOrEqual(1);
-    const mobileFiles = result.files.filter(
-      (f) => f.absolutePath.includes("apps/mobile"),
-    );
+    const mobileFiles = result.files.filter((f) => f.absolutePath.includes("apps/mobile"));
     expect(mobileFiles.length).toBe(1);
   });
 });

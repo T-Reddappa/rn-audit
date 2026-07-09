@@ -40,7 +40,7 @@
  * @module scanner/file-walker
  */
 
-import { readdirSync, statSync, readlinkSync, existsSync } from "node:fs";
+import { readdirSync, statSync, readlinkSync } from "node:fs";
 import { resolve, relative, join, basename, extname } from "node:path";
 import type { FileModel, FileExtension } from "../types/file.js";
 import { PermissionDeniedError, BrokenSymlinkError, TraversalLimitError } from "./errors.js";
@@ -198,11 +198,7 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
   function walk(currentDir: string, depth: number): void {
     // --- Guard: maximum depth ---
     if (depth > MAX_TRAVERSAL_DEPTH) {
-      const err = new TraversalLimitError(
-        "depth",
-        MAX_TRAVERSAL_DEPTH,
-        currentDir,
-      );
+      const err = new TraversalLimitError("depth", MAX_TRAVERSAL_DEPTH, currentDir);
       if (onWarning) {
         onWarning(err);
       } else {
@@ -214,11 +210,7 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
 
     // --- Guard: maximum file count ---
     if (files.length >= maxFileCount) {
-      const err = new TraversalLimitError(
-        "fileCount",
-        maxFileCount,
-        currentDir,
-      );
+      const err = new TraversalLimitError("fileCount", maxFileCount, currentDir);
       if (onWarning) {
         onWarning(err);
       } else {
@@ -228,18 +220,24 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
       return;
     }
 
-    let entries: Array<{ name: string; isFile: () => boolean; isDirectory: () => boolean; isSymbolicLink: () => boolean }>;
+    let entries: Array<{
+      name: string;
+      isFile: () => boolean;
+      isDirectory: () => boolean;
+      isSymbolicLink: () => boolean;
+    }>;
     try {
-      entries = readdirSync(currentDir, { withFileTypes: true }) as Array<{ name: string; isFile: () => boolean; isDirectory: () => boolean; isSymbolicLink: () => boolean }>;
+      entries = readdirSync(currentDir, { withFileTypes: true }) as Array<{
+        name: string;
+        isFile: () => boolean;
+        isDirectory: () => boolean;
+        isSymbolicLink: () => boolean;
+      }>;
     } catch (error: unknown) {
       const errnoError = error as NodeJS.ErrnoException;
 
       if (errnoError.code === "EACCES" || errnoError.code === "EPERM") {
-        const permissionError = new PermissionDeniedError(
-          currentDir,
-          errnoError.code,
-          error,
-        );
+        const permissionError = new PermissionDeniedError(currentDir, errnoError.code, error);
         if (onWarning) {
           onWarning(permissionError);
         }
@@ -283,11 +281,7 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
           const errnoError = error as NodeJS.ErrnoException;
 
           if (errnoError.code === "ENOENT") {
-            const symlinkError = new BrokenSymlinkError(
-              absolutePath,
-              "(unresolvable)",
-              error,
-            );
+            const symlinkError = new BrokenSymlinkError(absolutePath, "(unresolvable)", error);
             if (onWarning) {
               onWarning(symlinkError);
             }
@@ -296,11 +290,7 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
           }
 
           if (errnoError.code === "ELOOP") {
-            const symlinkError = new BrokenSymlinkError(
-              absolutePath,
-              "(circular)",
-              error,
-            );
+            const symlinkError = new BrokenSymlinkError(absolutePath, "(circular)", error);
             if (onWarning) {
               onWarning(symlinkError);
             }
@@ -333,11 +323,7 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
         } catch (error: unknown) {
           const errnoError = error as NodeJS.ErrnoException;
           if (errnoError.code === "ENOENT") {
-            const symlinkError = new BrokenSymlinkError(
-              absolutePath,
-              resolvedPath,
-              error,
-            );
+            const symlinkError = new BrokenSymlinkError(absolutePath, resolvedPath, error);
             if (onWarning) {
               onWarning(symlinkError);
             }
@@ -377,11 +363,7 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
           }
 
           if (errnoError.code === "EACCES" || errnoError.code === "EPERM") {
-            const permissionError = new PermissionDeniedError(
-              absolutePath,
-              errnoError.code,
-              error,
-            );
+            const permissionError = new PermissionDeniedError(absolutePath, errnoError.code, error);
             if (onWarning) {
               onWarning(permissionError);
             }
@@ -467,12 +449,7 @@ export function walkSourceFiles(options: WalkOptions): [FileModel[], WalkStatist
  * we need per-character O(1) lookup. The constants module's SOURCE_EXTENSIONS
  * set is the source of truth; this is a local alias for the hot path.
  */
-const supportedExtensions: ReadonlySet<string> = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-]);
+const supportedExtensions: ReadonlySet<string> = new Set([".ts", ".tsx", ".js", ".jsx"]);
 
 function isSupportedExtension(ext: string): boolean {
   return supportedExtensions.has(ext);

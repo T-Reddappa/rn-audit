@@ -117,10 +117,7 @@ export interface IgnoreRuleProvider {
    * @param relativePath - Path relative to the project root.
    * @returns The decision and a human-readable reason.
    */
-  test(
-    absolutePath: string,
-    relativePath: string,
-  ): IgnoreDecision;
+  test(absolutePath: string, relativePath: string): IgnoreDecision;
 }
 
 /** Result of consulting an ignore rule provider. */
@@ -221,11 +218,7 @@ export interface ProgressReporter {
   onFile?(file: FileModel): void;
 
   /** Called when scanning completes. */
-  onComplete?(stats: {
-    filesFound: number;
-    filesAccepted: number;
-    durationMs: number;
-  }): void;
+  onComplete?(stats: { filesFound: number; filesAccepted: number; durationMs: number }): void;
 
   /** Called for non-fatal errors during scanning. */
   onWarning?(error: Error): void;

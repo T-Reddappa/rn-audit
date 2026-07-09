@@ -41,10 +41,7 @@ function createTempDir(): string {
 }
 
 /** Write a minimal package.json for a React Native project. */
-function writePackageJson(
-  dir: string,
-  overrides: Record<string, unknown> = {},
-): void {
+function writePackageJson(dir: string, overrides: Record<string, unknown> = {}): void {
   const pkg = {
     name: "test-app",
     version: "1.0.0",

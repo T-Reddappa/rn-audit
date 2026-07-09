@@ -50,10 +50,7 @@ export function detectProjectType(
   dependencies: Record<string, string>,
   devDependencies: Record<string, string>,
 ): TypeDetectionResult {
-  const allDeps = new Set([
-    ...Object.keys(dependencies),
-    ...Object.keys(devDependencies),
-  ]);
+  const allDeps = new Set([...Object.keys(dependencies), ...Object.keys(devDependencies)]);
 
   const hasExpo = allDeps.has("expo");
   const hasReactNative = allDeps.has("react-native");

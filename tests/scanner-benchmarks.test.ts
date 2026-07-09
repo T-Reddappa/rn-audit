@@ -10,15 +10,13 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdirSync, writeFileSync, rmSync, symlinkSync, chmodSync, existsSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { mkdirSync, writeFileSync, rmSync, existsSync } from "node:fs";
+import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { randomBytes } from "node:crypto";
 import { walkSourceFiles } from "../src/scanner/file-walker.js";
 import { createIgnorePredicate } from "../src/scanner/ignore-resolver.js";
 import { resolveWorkspaces } from "../src/scanner/workspace-resolver.js";
-import type { FileModel } from "../src/types/file.js";
-import { ScannerError } from "../src/scanner/errors.js";
 
 // ---------------------------------------------------------------------------
 // Test helpers
@@ -110,10 +108,7 @@ describe("Stress: large file counts", () => {
       mkdirSync(dirPath, { recursive: true });
 
       for (let f = 0; f < FILES_PER_DIR; f++) {
-        writeFileSync(
-          join(dirPath, `Component${f}.tsx`),
-          "export const C = null;",
-        );
+        writeFileSync(join(dirPath, `Component${f}.tsx`), "export const C = null;");
       }
     }
 
@@ -189,10 +184,7 @@ describe("Stress: workspace resolution", () => {
     for (let i = 0; i < NUM_PACKAGES; i++) {
       const pkgDir = join(tempDir, "packages", `pkg-${i}`);
       mkdirSync(pkgDir, { recursive: true });
-      writeFileSync(
-        join(pkgDir, "package.json"),
-        JSON.stringify({ name: `@mono/pkg-${i}` }),
-      );
+      writeFileSync(join(pkgDir, "package.json"), JSON.stringify({ name: `@mono/pkg-${i}` }));
     }
 
     const result = resolveWorkspaces(tempDir);
@@ -211,10 +203,7 @@ describe("Stress: workspace resolution", () => {
       const dirPath = join(tempDir, "packages", `pkg-${i}`);
       mkdirSync(dirPath, { recursive: true });
       if (withPkg.includes(i)) {
-        writeFileSync(
-          join(dirPath, "package.json"),
-          JSON.stringify({ name: `pkg-${i}` }),
-        );
+        writeFileSync(join(dirPath, "package.json"), JSON.stringify({ name: `pkg-${i}` }));
       }
     }
 

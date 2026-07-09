@@ -28,10 +28,7 @@ export default defineConfig({
 
       // Exclude type-only files and the CLI entrypoint from coverage
       // (CLI entrypoint is tested via integration tests)
-      exclude: [
-        "src/types/**",
-        "src/cli.ts",
-      ],
+      exclude: ["src/types/**", "src/cli.ts"],
     },
   },
 });

@@ -11,7 +11,7 @@
  * @module types/discovery
  */
 
-import type { ProjectFramework, ExpoWorkflow, PackageManager } from "./project.js";
+import type { ProjectFramework, ExpoWorkflow } from "./project.js";
 
 // ---------------------------------------------------------------------------
 // Discovery options

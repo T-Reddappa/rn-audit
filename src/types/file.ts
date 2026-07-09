@@ -42,12 +42,7 @@ export type FileExtension = ".ts" | ".tsx" | ".js" | ".jsx";
  *
  * Stored as a ReadonlySet for O(1) lookup during traversal.
  */
-export const SUPPORTED_EXTENSIONS: ReadonlySet<string> = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-]);
+export const SUPPORTED_EXTENSIONS: ReadonlySet<string> = new Set([".ts", ".tsx", ".js", ".jsx"]);
 
 // ---------------------------------------------------------------------------
 // FileModel

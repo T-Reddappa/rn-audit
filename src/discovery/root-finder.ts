@@ -12,7 +12,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { resolve, dirname, parse as parsePath } from "node:path";
+import { resolve, dirname } from "node:path";
 import { NoPackageJsonError, NotReactNativeProjectError } from "./errors.js";
 import type { RootFinderResult } from "../types/discovery.js";
 
@@ -64,9 +64,7 @@ const RN_MARKER_DEPENDENCIES = new Set(["react-native", "expo"]);
  * @returns The absolute path to the discovered project root.
  * @throws {NoPackageJsonError} When no RN project is found up to the filesystem root.
  */
-export function findProjectRoot(
-  startDir: string = process.cwd(),
-): RootFinderResult {
+export function findProjectRoot(startDir: string = process.cwd()): RootFinderResult {
   let currentDir = resolve(startDir);
 
   // Walk up the directory tree
@@ -115,9 +113,7 @@ export function findProjectRoot(
  * @returns The validated project root.
  * @throws {NotReactNativeProjectError} If the directory is not an RN project.
  */
-export function findProjectRootExplicit(
-  explicitRoot: string,
-): RootFinderResult {
+export function findProjectRootExplicit(explicitRoot: string): RootFinderResult {
   const absoluteRoot = resolve(explicitRoot);
   const pkgPath = resolve(absoluteRoot, "package.json");
 

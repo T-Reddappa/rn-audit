@@ -33,9 +33,8 @@
  */
 
 import type { ProjectModel } from "../types/project.js";
-import type { FileModel, SourceDiscoveryResult, FileExtension } from "../types/file.js";
+import type { FileModel, SourceDiscoveryResult } from "../types/file.js";
 import { resolveWorkspaces } from "./workspace-resolver.js";
-import type { WorkspacePackage } from "./workspace-resolver.js";
 import { walkSourceFiles } from "./file-walker.js";
 import type { WalkStatistics } from "./file-walker.js";
 import { createIgnorePredicate } from "./ignore-resolver.js";
@@ -74,9 +73,7 @@ export type { WorkspacePackage } from "./workspace-resolver.js";
  * console.log(`Warnings: ${result.warnings.length}`);
  * ```
  */
-export function discoverSourceFiles(
-  project: ProjectModel,
-): SourceDiscoveryResult {
+export function discoverSourceFiles(project: ProjectModel): SourceDiscoveryResult {
   const startTime = performance.now();
 
   // ------------------------------------------------------------------
@@ -102,14 +99,7 @@ export function discoverSourceFiles(
       warnings.push(error);
     } else {
       // Wrap unknown errors so they're tracked with context
-      warnings.push(
-        new ScannerError(
-          "SCANNER_ERROR" as never,
-          error.message,
-          "(unknown)",
-          error,
-        ),
-      );
+      warnings.push(new ScannerError("SCANNER_ERROR" as never, error.message, "(unknown)", error));
     }
   }
 

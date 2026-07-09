@@ -73,6 +73,7 @@ discoverSourceFiles(project)
 ### 2. Warm Scan (with cache — Phase 2)
 
 Same as cold scan, but:
+
 - File metadata (size, mtime) is cached per absolute path
 - Files with unchanged mtime skip stat() and ignore checks
 - Cache is invalidated when .gitignore changes (tracked via mtime)
@@ -80,6 +81,7 @@ Same as cold scan, but:
 ### 3. Incremental Scan (watch mode — Phase 3)
 
 Same as warm scan, plus:
+
 - File watcher notifies of changes (fs.watch / chokidar)
 - Only changed files are re-scanned
 - New files are discovered, deleted files are pruned
@@ -91,11 +93,11 @@ Same as warm scan, plus:
 
 ### Error Classification
 
-| Severity | Error Types | Action |
-|----------|------------|--------|
-| **Fatal** | `TraversalLimitError` (no onWarning callback) | Abort scan |
+| Severity    | Error Types                                                                                       | Action                               |
+| ----------- | ------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| **Fatal**   | `TraversalLimitError` (no onWarning callback)                                                     | Abort scan                           |
 | **Warning** | `PermissionDeniedError`, `BrokenSymlinkError`, `InvalidWorkspaceError`, `UnsupportedPatternError` | Continue scan, collect in warnings[] |
-| **Silent** | `FileNotFoundError` (TOCTOU race) | Skip file, no warning |
+| **Silent**  | `FileNotFoundError` (TOCTOU race)                                                                 | Skip file, no warning                |
 
 ### Error Flow
 
@@ -125,22 +127,22 @@ walkSourceFiles()
 
 ### Time Complexity
 
-| Operation | Complexity | Notes |
-|-----------|-----------|-------|
-| Directory traversal | O(D + F) | D = directories visited, F = files found |
-| Per-file stat | O(1) | One stat call per source file |
-| Ignore predicate | O(P) per file | P = number of patterns (~10-50); compiled regex is O(n) where n = path length |
-| Overall | O(F × (1 + P)) | Linear in file count × pattern count |
+| Operation           | Complexity     | Notes                                                                         |
+| ------------------- | -------------- | ----------------------------------------------------------------------------- |
+| Directory traversal | O(D + F)       | D = directories visited, F = files found                                      |
+| Per-file stat       | O(1)           | One stat call per source file                                                 |
+| Ignore predicate    | O(P) per file  | P = number of patterns (~10-50); compiled regex is O(n) where n = path length |
+| Overall             | O(F × (1 + P)) | Linear in file count × pattern count                                          |
 
 ### Memory
 
-| Data structure | Size for 10,000 files |
-|---------------|----------------------|
-| FileModel[] (active) | ~2 MB (200 bytes each) |
-| FileModel[] (ignored) | ~200 KB |
+| Data structure             | Size for 10,000 files      |
+| -------------------------- | -------------------------- |
+| FileModel[] (active)       | ~2 MB (200 bytes each)     |
+| FileModel[] (ignored)      | ~200 KB                    |
 | Ignore patterns (compiled) | ~10 KB (50 regex patterns) |
-| WalkStatistics | ~100 bytes |
-| **Total** | **~2.5 MB** |
+| WalkStatistics             | ~100 bytes                 |
+| **Total**                  | **~2.5 MB**                |
 
 ### Bottleneck: stat() calls
 
@@ -189,36 +191,42 @@ A directory with 10,000 files (e.g., a flat `components/` directory) takes longe
 ### Architecture: 8/10
 
 **Strengths:**
+
 - Clear module boundaries: each module has a single, well-defined responsibility
 - Dependency inversion: the walker depends on injected `isIgnored` predicate, not on the ignore resolver
 - Extension points designed for future plugins without core changes
 - Data flow is unidirectional: `ProjectModel → scanner → SourceDiscoveryResult`
 
 **Deductions (-2):**
+
 - The workspace resolver has its own glob resolution logic that partially overlaps with the ignore resolver's pattern matching. These could share a common "glob-to-regex" utility. Justification: the glob syntax for workspaces is simpler than gitignore (no negation, no anchoring), so merging them would add complexity without benefit until Phase 2.
 - The `maxFileCount` safety limit is tracked but the counter is the `files.length` which includes ignored files. A project with 500K source files + 500K ignored files wouldn't trigger the limit correctly. Fix: count files before ignore filtering.
 
 ### Maintainability: 8/10
 
 **Strengths:**
+
 - Shared constants extracted to a single module (DRY fixed)
 - Typed error hierarchy means callers don't parse error messages
 - Clear JSDoc on every public function
 - Statistics tracking enables debugging ("why is my scan slow?")
 
 **Deductions (-2):**
+
 - The gitignore pattern compiler (`globToRegex`) is 60+ lines of character-by-character state machine. It's well-tested through integration tests but hard to read. A comment explaining the state machine states would improve maintainability.
 - Nested helper functions in `walkSourceFiles` (the `walk` and `processFile` closures) make the function long (~150 lines). Extracting these to module-level functions would improve testability, but the closures capture `options` for performance (no argument passing).
 
 ### Performance: 7/10
 
 **Strengths:**
+
 - Eager directory pruning eliminates ~95% of traversal work
 - `readdirSync` with `withFileTypes: true` avoids per-entry `stat` calls
 - Compiled regex patterns make ignore checks O(path length)
 - Sync operations are fast for Node.js CLI tools (no event loop overhead)
 
 **Deductions (-3):**
+
 - No caching yet (Phase 2). Cold scans re-stat every file every time.
 - Single-threaded. 100K files means 100K sequential operations. Worker threads would parallelize but TS Compiler API (next milestone) is sync.
 - `statSync` is called for every file even when the file's mtime hasn't changed since the last scan. A lightweight in-memory check against a previous scan would help.
@@ -226,45 +234,53 @@ A directory with 10,000 files (e.g., a flat `components/` directory) takes longe
 ### Testability: 8/10
 
 **Strengths:**
+
 - Most functions are pure (input → output) with no hidden state
 - Dependency injection (ignore predicate) makes unit testing trivial
 - Fixture-based tests create real directory structures for integration coverage
 - Error classes are testable in isolation
 
 **Deductions (-2):**
+
 - The file walker's deeply nested `walk()` function is hard to unit test in isolation (it's a closure). Extracting it would enable testing the traversal logic without a real filesystem.
 - No snapshot tests for scan output format. Adding these would catch regressions in FileModel structure.
 
 ### Extensibility: 9/10
 
 **Strengths:**
+
 - Five well-defined extension point interfaces (FileSystemProvider, IgnoreRuleProvider, WorkspaceResolver, FileFilter, ProgressReporter)
 - Workspace tools are detected via a pluggable chain (even if Phase 1 only has one resolver)
 - Config file patterns are data-driven (add to array, no logic change)
 
 **Deductions (-1):**
+
 - Extension points are designed but not yet usable from outside the package. Phase 2 needs a plugin loader to discover and instantiate implementations.
 
 ### Readability: 8/10
 
 **Strengths:**
+
 - Consistent naming: all scanner modules are kebab-case, functions are camelCase, types are PascalCase
 - JSDoc on every exported function explains "what," "why," and "when to use"
 - Error messages are complete sentences (not error codes) for easy debugging
 
 **Deductions (-2):**
+
 - The `globToRegex` function is dense regex-generation code. A few inline comments would help.
 - Some functions use numeric constants inline (e.g., depth limit checks). These are now in `constants.ts`.
 
 ### Open-Source Readiness: 8/10
 
 **Strengths:**
+
 - Apache 2.0 license
 - Comprehensive test suite with stress/benchmark coverage
 - Architecture documentation (this file)
 - Clear contribution path (extension points are documented)
 
 **Deductions (-2):**
+
 - No CONTRIBUTING.md section specific to the scanner (planned for project-wide CONTRIBUTING.md)
 - No changelog entries yet (project is pre-release)
 

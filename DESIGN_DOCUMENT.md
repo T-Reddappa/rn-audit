@@ -48,6 +48,7 @@ It is designed to become **the standard static analysis tool for React Native** 
 Phase 1 is **static analysis only** — no runtime profiling, no AI, no auto-fixes. The tool reads source files, parses ASTs, applies rules, and reports findings. This constraint is intentional: it keeps the initial scope achievable, the architecture clean, and the value proposition clear.
 
 The architecture is designed from day one to support:
+
 - A plugin system modeled after ESLint's (third-party rules, shareable configs, presets)
 - Multiple output formats (terminal, JSON, HTML, SARIF, Markdown, GitHub Actions annotations)
 - Future phases: runtime profiling, Babel plugin injection, VS Code extension, AI-powered recommendations, CI/CD quality gates
@@ -68,6 +69,7 @@ npx rn-audit
 Within seconds, they receive a scored, categorized report telling them exactly what to fix, why it matters, and how long it will take. No configuration required. No runtime needed. No app to launch.
 
 The tool becomes:
+
 - The **first command** run in a new React Native project to assess its health
 - The **CI gate** that blocks regressions before they reach production
 - The **onboarding companion** that teaches React Native best practices through actionable feedback
@@ -164,30 +166,32 @@ rn-audit fills this gap.
 
 ### 5.1 Comparison Matrix
 
-| Tool | Type | React Native Aware | Performance Focus | Static Analysis | Open Source | Zero Config | Plugin System |
-|------|------|-------------------|-------------------|-----------------|-------------|-------------|---------------|
-| **rn-audit** | Static analysis + future runtime | ✅ Deep | ✅ Primary | ✅ Phase 1 | ✅ | ✅ | ✅ Planned |
-| ESLint + plugins | Static analysis | ⚠️ Shallow | ❌ | ✅ | ✅ | ❌ | ✅ |
-| Biome | Static analysis | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
-| TypeScript | Type checking | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Metro | Bundler | ✅ | ⚠️ Indirect | ❌ | ✅ | ✅ | ✅ |
-| React DevTools | Runtime profiler | ✅ | ✅ | ❌ | ✅ | N/A | ❌ |
-| Flipper | Debugger | ✅ | ✅ | ❌ | ✅ | N/A | ✅ |
-| SonarQube | Code quality | ⚠️ General web | ⚠️ | ✅ | ⚠️ CE | ❌ | ⚠️ |
-| DeepSource | SaaS code review | ⚠️ | ⚠️ | ✅ | ❌ | ❌ | ❌ |
-| why-did-you-render | Runtime monitor | ✅ | ✅ | ❌ | ✅ | ❌ | N/A |
+| Tool               | Type                             | React Native Aware | Performance Focus | Static Analysis | Open Source | Zero Config | Plugin System |
+| ------------------ | -------------------------------- | ------------------ | ----------------- | --------------- | ----------- | ----------- | ------------- |
+| **rn-audit**       | Static analysis + future runtime | ✅ Deep            | ✅ Primary        | ✅ Phase 1      | ✅          | ✅          | ✅ Planned    |
+| ESLint + plugins   | Static analysis                  | ⚠️ Shallow         | ❌                | ✅              | ✅          | ❌          | ✅            |
+| Biome              | Static analysis                  | ❌                 | ❌                | ✅              | ✅          | ✅          | ❌            |
+| TypeScript         | Type checking                    | ❌                 | ❌                | ✅              | ✅          | ❌          | ❌            |
+| Metro              | Bundler                          | ✅                 | ⚠️ Indirect       | ❌              | ✅          | ✅          | ✅            |
+| React DevTools     | Runtime profiler                 | ✅                 | ✅                | ❌              | ✅          | N/A         | ❌            |
+| Flipper            | Debugger                         | ✅                 | ✅                | ❌              | ✅          | N/A         | ✅            |
+| SonarQube          | Code quality                     | ⚠️ General web     | ⚠️                | ✅              | ⚠️ CE       | ❌          | ⚠️            |
+| DeepSource         | SaaS code review                 | ⚠️                 | ⚠️                | ✅              | ❌          | ❌          | ❌            |
+| why-did-you-render | Runtime monitor                  | ✅                 | ✅                | ❌              | ✅          | ❌          | N/A           |
 
 ### 5.2 Detailed Analysis
 
 #### ESLint + eslint-plugin-react + eslint-plugin-react-native
 
 **What it does well:**
+
 - Mature ecosystem, widely adopted, large community
 - Excellent plugin architecture (the gold standard)
 - Shareable configs, presets, and formatters
 - Rule documentation, auto-fix infrastructure, CI integration
 
 **Where it falls short for React Native:**
+
 - `eslint-plugin-react-native` has only 4 rules (no-inline-styles, no-unused-styles, no-color-literals, split-platform-components) — far too few for comprehensive auditing
 - No understanding of FlatList vs ScrollView tradeoffs
 - No accessibility-specific rules
@@ -204,11 +208,13 @@ ESLint operates on a per-file basis without module-level context. Many React Nat
 #### TypeScript Compiler
 
 **What it does well:**
+
 - Gold standard for type checking
 - Rich type system enables sophisticated static analysis
 - Exact type information (not approximations)
 
 **Where it falls short:**
+
 - No domain knowledge of React or React Native
 - No concept of performance patterns
 - No linting infrastructure (rules, severity, categories, reporting)
@@ -220,11 +226,13 @@ rn-audit should leverage the TypeScript Compiler API as its primary parser (see 
 #### Biome
 
 **What it does well:**
+
 - Extremely fast (Rust-based)
 - Good developer experience
 - Growing ecosystem
 
 **Where it falls short:**
+
 - No React Native domain knowledge
 - Plugin system is immature (by design — Biome prioritizes built-in rules)
 - No extensibility model comparable to ESLint's
@@ -235,11 +243,13 @@ Biome and rn-audit are complementary. A developer might use Biome for formatting
 #### Metro (React Native Bundler)
 
 **What it does well:**
+
 - Understands the entire module graph
 - Can report bundle sizes per module
 - Has access to the final bundle output
 
 **Where it falls short:**
+
 - Not a static analysis tool — operates on the bundle pipeline
 - No rules engine, no findings model, no reporting infrastructure
 - Cannot provide source-level recommendations
@@ -265,12 +275,14 @@ No existing tool has all three. This is rn-audit's moat.
 ### 6.1 Phase 1 — What It MUST Do
 
 #### FR-1: Project Detection
+
 - FR-1.1: Detect whether the current directory is a React Native or Expo project by checking for `react-native` or `expo` in `package.json` dependencies.
 - FR-1.2: If not a React Native project, exit with a clear error message suggesting the user navigate to a React Native project root.
 - FR-1.3: Detect the project type (bare React Native, Expo managed, Expo bare) and tailor analysis accordingly.
 - FR-1.4: Detect whether TypeScript or JavaScript is the primary language.
 
 #### FR-2: File Discovery
+
 - FR-2.1: Discover all relevant source files (`.ts`, `.tsx`, `.js`, `.jsx`) in the project.
 - FR-2.2: Respect `.gitignore` patterns by default.
 - FR-2.3: Respect a configurable ignore list (glob patterns).
@@ -278,6 +290,7 @@ No existing tool has all three. This is rn-audit's moat.
 - FR-2.5: Support configurable include and exclude patterns.
 
 #### FR-3: Source Parsing
+
 - FR-3.1: Parse TypeScript (`.ts`, `.tsx`) files into ASTs using the TypeScript Compiler API.
 - FR-3.2: Parse JavaScript (`.js`, `.jsx`) files into ASTs using a Babel-based fallback parser.
 - FR-3.3: Parse JSON files (`package.json`, `app.json`, `tsconfig.json`) for configuration and dependency analysis.
@@ -285,6 +298,7 @@ No existing tool has all three. This is rn-audit's moat.
 - FR-3.5: Support JSX and TSX syntax in parsed files.
 
 #### FR-4: Rule Engine
+
 - FR-4.1: Execute a set of built-in rules against every parsed file.
 - FR-4.2: Rules operate on typed ASTs (TypeScript Compiler API ASTs, not ESTree).
 - FR-4.3: Each rule is an independent, stateless module.
@@ -294,11 +308,13 @@ No existing tool has all three. This is rn-audit's moat.
 - FR-4.7: Disabled rules (via configuration) are skipped entirely — no parsing or traversal cost is incurred for them.
 
 #### FR-5: Findings Model
+
 - FR-5.1: Every issue discovered by a rule is represented as a Finding with a standardized structure.
 - FR-5.2: Each finding includes: unique ID, rule ID, title, description, severity, category, file path, line number, column number, end line, end column, source code snippet, recommendation text, documentation URL, estimated performance impact, estimated fix time, and tags.
 - FR-5.3: Findings are collected, deduplicated, and sorted before reporting.
 
 #### FR-6: Reporting
+
 - FR-6.1: Default output is a colorized terminal report.
 - FR-6.2: Terminal report shows: summary line (total files, total findings, score), findings grouped by category, each finding with code frame, severity icon, and recommendation.
 - FR-6.3: Support `--json` for machine-readable output.
@@ -308,6 +324,7 @@ No existing tool has all three. This is rn-audit's moat.
 - FR-6.7: Support `--quiet` flag to suppress non-error findings in terminal output.
 
 #### FR-7: Configuration
+
 - FR-7.1: Work with zero configuration — sensible defaults for everything.
 - FR-7.2: Support `.rnauditrc.json` configuration file.
 - FR-7.3: Support `rnaudit` key in `package.json`.
@@ -316,6 +333,7 @@ No existing tool has all three. This is rn-audit's moat.
 - FR-7.6: `rn-audit init` generates a configuration file with documentation comments.
 
 #### FR-8: CLI
+
 - FR-8.1: `rn-audit` (no arguments) runs a full scan and displays the terminal report.
 - FR-8.2: `rn-audit scan` explicitly runs a scan (alias for default behavior).
 - FR-8.3: `rn-audit report` re-displays the last report (from cache).
@@ -328,6 +346,7 @@ No existing tool has all three. This is rn-audit's moat.
 - FR-8.10: All CLI output goes to stdout; errors and progress go to stderr.
 
 #### FR-9: Caching
+
 - FR-9.1: Cache parse results and rule findings per file, keyed by file content hash.
 - FR-9.2: On subsequent runs, skip re-analysis of files whose content hasn't changed.
 - FR-9.3: Cache is stored in `node_modules/.cache/rn-audit/`.
@@ -335,22 +354,23 @@ No existing tool has all three. This is rn-audit's moat.
 - FR-9.5: `--clear-cache` flag deletes the cache before running.
 
 #### FR-10: Initial Rule Set
+
 The initial release must ship with at least these built-in rules:
 
-| Rule ID | Category | Severity | Description |
-|---------|----------|----------|-------------|
-| `no-inline-styles` | styles | warning | Objects passed to `style` prop should use `StyleSheet.create()` |
-| `no-inline-callbacks` | react | warning | Callbacks in JSX props should be stabilized with `useCallback` or defined outside render |
-| `no-inline-objects` | react | warning | Objects/arrays in JSX props create new references each render |
-| `require-flatlist-key-extractor` | react-native | error | `FlatList` without `keyExtractor` degrades scroll performance |
-| `require-image-dimensions` | react-native | warning | `<Image>` without explicit `width`/`height` causes layout shifts |
-| `require-accessibility-label` | accessibility | warning | Interactive elements without `accessibilityLabel` are invisible to screen readers |
-| `no-nested-scrollviews` | react-native | error | Nested `ScrollView` components create conflicting scroll behavior |
-| `no-duplicate-styles` | styles | info | Identical style objects across files should be extracted |
-| `no-direct-mutation` | react | error | Direct state mutation (`.push()`, `.sort()` on state) instead of immutable update |
-| `prefer-flatlist-over-scrollview` | react-native | warning | `ScrollView` with dynamic children should be `FlatList` |
-| `no-sync-storage` | react-native | warning | `AsyncStorage.getItem()` without `await` blocks the JS thread |
-| `no-console-log` | code-quality | info | `console.log` statements should not ship to production |
+| Rule ID                           | Category      | Severity | Description                                                                              |
+| --------------------------------- | ------------- | -------- | ---------------------------------------------------------------------------------------- |
+| `no-inline-styles`                | styles        | warning  | Objects passed to `style` prop should use `StyleSheet.create()`                          |
+| `no-inline-callbacks`             | react         | warning  | Callbacks in JSX props should be stabilized with `useCallback` or defined outside render |
+| `no-inline-objects`               | react         | warning  | Objects/arrays in JSX props create new references each render                            |
+| `require-flatlist-key-extractor`  | react-native  | error    | `FlatList` without `keyExtractor` degrades scroll performance                            |
+| `require-image-dimensions`        | react-native  | warning  | `<Image>` without explicit `width`/`height` causes layout shifts                         |
+| `require-accessibility-label`     | accessibility | warning  | Interactive elements without `accessibilityLabel` are invisible to screen readers        |
+| `no-nested-scrollviews`           | react-native  | error    | Nested `ScrollView` components create conflicting scroll behavior                        |
+| `no-duplicate-styles`             | styles        | info     | Identical style objects across files should be extracted                                 |
+| `no-direct-mutation`              | react         | error    | Direct state mutation (`.push()`, `.sort()` on state) instead of immutable update        |
+| `prefer-flatlist-over-scrollview` | react-native  | warning  | `ScrollView` with dynamic children should be `FlatList`                                  |
+| `no-sync-storage`                 | react-native  | warning  | `AsyncStorage.getItem()` without `await` blocks the JS thread                            |
+| `no-console-log`                  | code-quality  | info     | `console.log` statements should not ship to production                                   |
 
 ### 6.2 Phase 1 — What It MUST NOT Do
 
@@ -381,13 +401,13 @@ The initial release must ship with at least these built-in rules:
 
 ### 7.1 Performance
 
-| Requirement | Target | Measurement |
-|-------------|--------|-------------|
-| Cold scan (no cache, 500 files) | < 30 seconds | Wall-clock time on typical developer laptop |
-| Warm scan (full cache, no changes) | < 2 seconds | Wall-clock time |
-| Incremental scan (1 file changed) | < 500ms per file | Wall-clock time |
-| Memory usage (500 files) | < 512 MB | RSS as reported by OS |
-| Startup time (CLI to first output) | < 1 second | Wall-clock time |
+| Requirement                        | Target           | Measurement                                 |
+| ---------------------------------- | ---------------- | ------------------------------------------- |
+| Cold scan (no cache, 500 files)    | < 30 seconds     | Wall-clock time on typical developer laptop |
+| Warm scan (full cache, no changes) | < 2 seconds      | Wall-clock time                             |
+| Incremental scan (1 file changed)  | < 500ms per file | Wall-clock time                             |
+| Memory usage (500 files)           | < 512 MB         | RSS as reported by OS                       |
+| Startup time (CLI to first output) | < 1 second       | Wall-clock time                             |
 
 **Rationale:** Developers run linters frequently. If the tool takes more than 30 seconds on a cold run, developers will stop using it. The warm-scan target (< 2 seconds) is critical for pre-commit hook and save-on-type editor integration scenarios.
 
@@ -435,7 +455,6 @@ The initial release must ship with at least these built-in rules:
 - Contributing guide, code of conduct, security policy, issue templates, PR template — all in place before going public.
 - Apache 2.0 license (permissive, enterprise-friendly, compatible with React Native's license).
 
-
 ---
 
 ## 8. Complete CLI Specification
@@ -446,70 +465,70 @@ This section specifies every command planned for the tool's lifetime, organized 
 
 #### Phase 1 Commands
 
-| Command | Aliases | Purpose | Exit Codes |
-|---------|---------|---------|------------|
-| `rn-audit` | — | Default: run a full scan and display terminal report | 0 = no errors; 1 = errors found; 2 = runtime error |
-| `rn-audit scan` | — | Explicitly run a scan (same as default, but enables scan-specific flags) | Same as above |
-| `rn-audit report` | — | Re-display the most recent report from cache | 0 = success; 1 = no cached report; 2 = runtime error |
-| `rn-audit rules` | `rn-audit rule list` | List all available rules with name, category, severity, and enabled status | 0 |
-| `rn-audit explain <rule>` | `rn-audit rule explain <rule>` | Display detailed documentation for a specific rule including: description, rationale, examples (good/bad), configuration options, references | 0 = found; 1 = rule not found |
-| `rn-audit init` | — | Generate `.rnauditrc.json` with all available rules and their default settings, commented with descriptions | 0 |
-| `rn-audit version` | `rn-audit --version`, `rn-audit -v` | Print version string | 0 |
-| `rn-audit --help` | `rn-audit -h`, `rn-audit help` | Print top-level help or command-specific help | 0 |
+| Command                   | Aliases                             | Purpose                                                                                                                                      | Exit Codes                                           |
+| ------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `rn-audit`                | —                                   | Default: run a full scan and display terminal report                                                                                         | 0 = no errors; 1 = errors found; 2 = runtime error   |
+| `rn-audit scan`           | —                                   | Explicitly run a scan (same as default, but enables scan-specific flags)                                                                     | Same as above                                        |
+| `rn-audit report`         | —                                   | Re-display the most recent report from cache                                                                                                 | 0 = success; 1 = no cached report; 2 = runtime error |
+| `rn-audit rules`          | `rn-audit rule list`                | List all available rules with name, category, severity, and enabled status                                                                   | 0                                                    |
+| `rn-audit explain <rule>` | `rn-audit rule explain <rule>`      | Display detailed documentation for a specific rule including: description, rationale, examples (good/bad), configuration options, references | 0 = found; 1 = rule not found                        |
+| `rn-audit init`           | —                                   | Generate `.rnauditrc.json` with all available rules and their default settings, commented with descriptions                                  | 0                                                    |
+| `rn-audit version`        | `rn-audit --version`, `rn-audit -v` | Print version string                                                                                                                         | 0                                                    |
+| `rn-audit --help`         | `rn-audit -h`, `rn-audit help`      | Print top-level help or command-specific help                                                                                                | 0                                                    |
 
 #### Phase 2 Commands (Planned)
 
-| Command | Purpose |
-|---------|---------|
-| `rn-audit config` | Display the resolved (merged) configuration — what config file was used, what rules are enabled, what overrides are active |
+| Command           | Purpose                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `rn-audit config` | Display the resolved (merged) configuration — what config file was used, what rules are enabled, what overrides are active                       |
 | `rn-audit doctor` | Verify the tool is correctly installed and configured. Checks: Node version, project type detection, config validity, cache health, rule loading |
-| `rn-audit --fix` | Apply auto-fixes for rules that support them. Requires each rule to implement a fix() method |
-| `rn-audit --ci` | CI mode: exit code 1 on any finding (not just errors), SARIF output by default, no progress indicators, no color |
+| `rn-audit --fix`  | Apply auto-fixes for rules that support them. Requires each rule to implement a fix() method                                                     |
+| `rn-audit --ci`   | CI mode: exit code 1 on any finding (not just errors), SARIF output by default, no progress indicators, no color                                 |
 
 #### Phase 3+ Commands (Planned)
 
-| Command | Purpose |
-|---------|---------|
-| `rn-audit watch` | Watch mode: re-scan on file changes. Used with `--watch` flag on `scan` |
-| `rn-audit profile` | Runtime profiling mode: launch the app, collect runtime metrics (FPS, bridge traffic, memory), combine with static findings |
-| `rn-audit baseline` | Generate a baseline file of known findings to ignore. Subsequent runs only report new findings |
-| `rn-audit diff` | Compare findings between two branches/commits |
-| `rn-audit plugin add <name>` | Install a third-party plugin |
-| `rn-audit plugin remove <name>` | Remove a third-party plugin |
-| `rn-audit plugin list` | List installed third-party plugins |
+| Command                         | Purpose                                                                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `rn-audit watch`                | Watch mode: re-scan on file changes. Used with `--watch` flag on `scan`                                                     |
+| `rn-audit profile`              | Runtime profiling mode: launch the app, collect runtime metrics (FPS, bridge traffic, memory), combine with static findings |
+| `rn-audit baseline`             | Generate a baseline file of known findings to ignore. Subsequent runs only report new findings                              |
+| `rn-audit diff`                 | Compare findings between two branches/commits                                                                               |
+| `rn-audit plugin add <name>`    | Install a third-party plugin                                                                                                |
+| `rn-audit plugin remove <name>` | Remove a third-party plugin                                                                                                 |
+| `rn-audit plugin list`          | List installed third-party plugins                                                                                          |
 
 ### 8.2 Global Flags
 
 Flags that apply to all commands:
 
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--config <path>` | string | auto | Path to config file. If not provided, auto-discovery is used |
-| `--no-color` | boolean | false | Disable ANSI color output |
-| `--color` | boolean | true | Force ANSI color output (even when piped) |
-| `--verbose` | boolean | false | Enable verbose logging (progress, timing, cache hits/misses) |
-| `--quiet` | boolean | false | Suppress all output except errors |
-| `--silent` | boolean | false | Suppress all output; exit code only |
-| `--debug` | boolean | false | Enable debug output (internal state, stack traces on errors) |
+| Flag              | Type    | Default | Description                                                  |
+| ----------------- | ------- | ------- | ------------------------------------------------------------ |
+| `--config <path>` | string  | auto    | Path to config file. If not provided, auto-discovery is used |
+| `--no-color`      | boolean | false   | Disable ANSI color output                                    |
+| `--color`         | boolean | true    | Force ANSI color output (even when piped)                    |
+| `--verbose`       | boolean | false   | Enable verbose logging (progress, timing, cache hits/misses) |
+| `--quiet`         | boolean | false   | Suppress all output except errors                            |
+| `--silent`        | boolean | false   | Suppress all output; exit code only                          |
+| `--debug`         | boolean | false   | Enable debug output (internal state, stack traces on errors) |
 
 ### 8.3 Scan-Specific Flags
 
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--format <name>` | string | `stylish` | Output format: `stylish`, `json`, `html`, `sarif`, `markdown`, `github-actions` |
-| `--output <path>` | string | stdout | Write report to file instead of stdout |
-| `--max-warnings <n>` | number | -1 | Exit code 1 if warning count exceeds this threshold (-1 = no limit) |
-| `--no-cache` | boolean | false | Disable file cache |
-| `--clear-cache` | boolean | false | Delete cache before scanning |
-| `--cache-location <path>` | string | `node_modules/.cache/rn-audit` | Custom cache directory |
-| `--include <patterns>` | string[] | auto | Glob patterns of files to include |
-| `--exclude <patterns>` | string[] | auto | Glob patterns of files to exclude |
-| `--rules <ids>` | string[] | all | Only run these specific rules |
-| `--skip <ids>` | string[] | none | Skip these specific rules |
-| `--category <cats>` | string[] | all | Only run rules in these categories |
-| `--severity <level>` | string | `error` | Minimum severity to report (`error`, `warning`, `info`) |
-| `--no-ignore` | boolean | false | Don't use ignore patterns (`.gitignore`, config excludes) |
-| `--stats` | boolean | false | Print timing and count statistics after the report |
+| Flag                      | Type     | Default                        | Description                                                                     |
+| ------------------------- | -------- | ------------------------------ | ------------------------------------------------------------------------------- |
+| `--format <name>`         | string   | `stylish`                      | Output format: `stylish`, `json`, `html`, `sarif`, `markdown`, `github-actions` |
+| `--output <path>`         | string   | stdout                         | Write report to file instead of stdout                                          |
+| `--max-warnings <n>`      | number   | -1                             | Exit code 1 if warning count exceeds this threshold (-1 = no limit)             |
+| `--no-cache`              | boolean  | false                          | Disable file cache                                                              |
+| `--clear-cache`           | boolean  | false                          | Delete cache before scanning                                                    |
+| `--cache-location <path>` | string   | `node_modules/.cache/rn-audit` | Custom cache directory                                                          |
+| `--include <patterns>`    | string[] | auto                           | Glob patterns of files to include                                               |
+| `--exclude <patterns>`    | string[] | auto                           | Glob patterns of files to exclude                                               |
+| `--rules <ids>`           | string[] | all                            | Only run these specific rules                                                   |
+| `--skip <ids>`            | string[] | none                           | Skip these specific rules                                                       |
+| `--category <cats>`       | string[] | all                            | Only run rules in these categories                                              |
+| `--severity <level>`      | string   | `error`                        | Minimum severity to report (`error`, `warning`, `info`)                         |
+| `--no-ignore`             | boolean  | false                          | Don't use ignore patterns (`.gitignore`, config excludes)                       |
+| `--stats`                 | boolean  | false                          | Print timing and count statistics after the report                              |
 
 ### 8.4 Design Rationale for Each Command
 
@@ -536,11 +555,11 @@ In Phase 1, the tool is simple enough that errors are self-explanatory. As plugi
 
 ### 8.5 Exit Code Specification
 
-| Code | Meaning | When |
-|------|---------|------|
-| 0 | Success | No errors found (warnings and info are OK, subject to `--max-warnings`) |
-| 1 | Findings threshold exceeded | One or more error-level findings found, or `--max-warnings` threshold exceeded |
-| 2 | Runtime error | Unhandled exception, config parse error, or internal failure. Details on stderr |
+| Code | Meaning                     | When                                                                            |
+| ---- | --------------------------- | ------------------------------------------------------------------------------- |
+| 0    | Success                     | No errors found (warnings and info are OK, subject to `--max-warnings`)         |
+| 1    | Findings threshold exceeded | One or more error-level findings found, or `--max-warnings` threshold exceeded  |
+| 2    | Runtime error               | Unhandled exception, config parse error, or internal failure. Details on stderr |
 
 This aligns with ESLint's exit code convention, which is the de facto standard for linting tools in the JavaScript ecosystem.
 
@@ -574,9 +593,9 @@ REACT NATIVE (2 errors, 4 warnings)
 
   error  FlatList is missing keyExtractor prop
   rn-audit/require-flatlist-key-extractor
-  
+
   src/screens/ProductList.tsx:42:5
-  
+
     40 |   return (
     41 |     <View style={styles.container}>
   > 42 |       <FlatList
@@ -584,34 +603,34 @@ REACT NATIVE (2 errors, 4 warnings)
     43 |         data={products}
     44 |         renderItem={renderProduct}
     45 |       />
-  
+
   ⚡ High performance impact   🕐 Quick fix (30s)
-  
+
   Recommendation: Add keyExtractor={(item) => item.id} to this FlatList.
   Without keyExtractor, React Native cannot efficiently track list items,
   causing unnecessary re-renders and degraded scroll performance.
-  
+
   Docs: https://github.com/user/rn-audit/blob/main/docs/rules/require-flatlist-key-extractor.md
 
 
   warning  Image is missing explicit width/height
   rn-audit/require-image-dimensions
-  
+
   src/components/ProductCard.tsx:18:7
-  
+
     16 |     <View style={styles.card}>
     17 |       <Text style={styles.title}>{product.name}</Text>
   > 18 |       <Image source={{ uri: product.image }} />
        |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     19 |       <Text style={styles.price}>{product.price}</Text>
     20 |     </View>
-  
+
   ⚡ Medium performance impact   🕐 Quick fix (30s)
-  
+
   Recommendation: Add width and height to this Image component, or use
   the `style` prop with explicit dimensions. Images without dimensions
   cause layout shifts when loading completes.
-  
+
   Docs: https://github.com/user/rn-audit/blob/main/docs/rules/require-image-dimensions.md
 
 
@@ -668,6 +687,7 @@ $ npx rn-audit scan --format sarif --output rn-audit-results.sarif --max-warning
 ### 9.4 Error States
 
 **Not a React Native project:**
+
 ```bash
 $ cd some-random-folder
 $ npx rn-audit
@@ -675,12 +695,13 @@ $ npx rn-audit
 ✖ Error: This does not appear to be a React Native or Expo project.
 
   Could not find 'react-native' or 'expo' in package.json dependencies.
-  
+
   If you believe this is an error, run:
     rn-audit --config ./path/to/config
 ```
 
 **Parse error in a file:**
+
 ```bash
 $ npx rn-audit
 ✔ Scanning 247 files...
@@ -694,6 +715,7 @@ $ npx rn-audit
 ```
 
 **Configuration file has a schema error:**
+
 ```bash
 $ npx rn-audit
 
@@ -774,12 +796,14 @@ The architecture is closest to the **Pipes and Filters** pattern: each stage tra
 **Single Responsibility:** Parse user input and dispatch to the appropriate command handler.
 
 **Does:**
+
 - Parse argv using a lightweight argument parser (no external dependency)
 - Validate flag values
 - Route to the correct command handler
 - Print help text
 
 **Does NOT:**
+
 - Contain business logic (scanning, parsing, reporting)
 - Know about rules, ASTs, or findings
 - Access the filesystem directly
@@ -794,6 +818,7 @@ The CLI has simple needs: a few subcommands, flags, and aliases. Full-featured a
 **Single Responsibility:** Discover which files to analyze.
 
 **Does:**
+
 - Recursively walk the project directory
 - Apply include/exclude glob patterns
 - Respect `.gitignore` rules
@@ -801,6 +826,7 @@ The CLI has simple needs: a few subcommands, flags, and aliases. Full-featured a
 - Return a lazily-evaluated iterable of file paths (not an array) for memory efficiency
 
 **Does NOT:**
+
 - Read file contents
 - Parse files
 - Know about rules or findings
@@ -815,12 +841,14 @@ A large monorepo might have 50,000 files. Building an array of all file paths wa
 **Single Responsibility:** Convert source files into typed ASTs.
 
 **Does:**
+
 - Accept a file path and return a parsed AST with type information
 - Route to the correct parser based on file extension (`.ts`/`.tsx` → TypeScript Compiler API, `.js`/`.jsx` → Babel)
 - Attach source file metadata (path, content hash)
 - Report parse errors as structured error objects (not thrown exceptions)
 
 **Does NOT:**
+
 - Know about rules or findings
 - Run visitors on the AST
 - Cache results (caching is the orchestrator's responsibility)
@@ -829,12 +857,14 @@ A large monorepo might have 50,000 files. Building an array of all file paths wa
 
 **Why TypeScript Compiler API as primary parser (ADR-002):**
 The TypeScript Compiler API provides:
+
 - A typed AST (not just syntactic structure — you know the type of every expression)
 - Module resolution (what does this import resolve to?)
 - JSDoc parsing
 - Control flow analysis (for rules about useEffect dependencies, conditional hooks, etc.)
 
 This enables rules that are impossible with an untyped ESTree AST:
+
 - Detect when `useMemo` wraps a value whose dependencies never change (the memo is unnecessary)
 - Verify that `useCallback` dependency arrays are complete (by checking what variables the callback actually references)
 - Trace imports to determine if a heavy library is being imported for a single trivial function
@@ -846,6 +876,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 **Single Responsibility:** Apply rules to parsed ASTs and collect findings.
 
 **Does:**
+
 - Maintain the rule registry (which rules are available and enabled)
 - Walk the AST using a visitor pattern
 - Dispatch to matching rules at each AST node
@@ -854,6 +885,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 - Catch and log rule-level exceptions (one crashing rule does not crash the scan)
 
 **Does NOT:**
+
 - Discover files (scanner's job)
 - Parse files (parser's job)
 - Format output (reporter's job)
@@ -867,6 +899,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 **Single Responsibility:** Format findings for human or machine consumption.
 
 **Does:**
+
 - Accept an array of findings and produce formatted output
 - Calculate the performance score
 - Group findings by category, severity, or file (configurable)
@@ -874,6 +907,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 - Support multiple output formats (stylish, JSON, HTML, SARIF, Markdown, GitHub Actions)
 
 **Does NOT:**
+
 - Run rules or produce findings
 - Access the filesystem
 - Know about the CLI argument parser
@@ -885,6 +919,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 **Single Responsibility:** Load, validate, and resolve configuration.
 
 **Does:**
+
 - Search for config files in standard locations (`.rnauditrc.json`, `.rnauditrc.js`, `package.json#rnaudit`)
 - Validate config against a JSON Schema
 - Merge config from multiple sources (file defaults → config file → CLI flags)
@@ -892,6 +927,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 - Provide typed, validated config to all other modules
 
 **Does NOT:**
+
 - Execute rules
 - Access the network
 - Modify files
@@ -903,6 +939,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 **Single Responsibility:** Persist and retrieve per-file analysis results.
 
 **Does:**
+
 - Hash file contents (SHA-256)
 - Store findings keyed by `(file_path, content_hash)`
 - Detect cache validity on subsequent runs
@@ -910,6 +947,7 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 - Handle cache corruption by invalidating affected entries
 
 **Does NOT:**
+
 - Know about rules or findings structure
 - Perform analysis
 
@@ -920,11 +958,13 @@ The cost is parsing speed. TypeScript's parser is ~2-3x slower than Babel's on i
 **Single Responsibility:** Provide the built-in rule implementations.
 
 **Does:**
+
 - Export a registry of all built-in rules
 - Organize rules by category directory
 - Each rule file exports a `Rule` object conforming to the Rule interface
 
 **Does NOT:**
+
 - Run the scan (engine's job)
 - Know about the CLI, filesystem, or configuration
 
@@ -964,7 +1004,7 @@ User runs: npx rn-audit
    ├─ Calculate performance score
    ├─ Format output
    └─ Write to stdout (or file if --output)
-   
+
 4. Exit
    └─ Exit code based on findings and --max-warnings
 ```
@@ -1049,6 +1089,7 @@ SHA-256 is built into Node.js (`crypto.createHash('sha256')`), requires no nativ
 ### 13.1 Why a Rule Engine?
 
 A rule engine is the heart of any static analysis tool. Its design determines:
+
 - How easy it is to add new rules (contributor velocity)
 - How fast the tool runs (performance)
 - How reliable the tool is (fault isolation)
@@ -1129,10 +1170,10 @@ interface Rule {
 interface RuleContext {
   // The file being analyzed
   sourceFile: {
-    path: string;          // Relative to project root
-    absolutePath: string;  // Absolute filesystem path
-    content: string;       // Raw source text
-    language: 'typescript' | 'javascript';
+    path: string; // Relative to project root
+    absolutePath: string; // Absolute filesystem path
+    content: string; // Raw source text
+    language: "typescript" | "javascript";
     isJSX: boolean;
     isTSX: boolean;
   };
@@ -1144,11 +1185,11 @@ interface RuleContext {
   // This is the primary way rules communicate findings.
   report(finding: {
     // Location within the file
-    node: ASTNode;             // The AST node (for position extraction)
-    message: string;           // One-line description
-    suggestion?: string;       // Fix recommendation
-    estimatedImpact?: 'high' | 'medium' | 'low';
-    estimatedFixTime?: 'quick' | 'moderate' | 'significant';
+    node: ASTNode; // The AST node (for position extraction)
+    message: string; // One-line description
+    suggestion?: string; // Fix recommendation
+    estimatedImpact?: "high" | "medium" | "low";
+    estimatedFixTime?: "quick" | "moderate" | "significant";
   }): void;
 
   // Get the TypeScript type of a node (only available for .ts/.tsx files)
@@ -1220,8 +1261,8 @@ Rules are registered through a central registry, not imported individually by th
 // Conceptual — not implementation
 
 // src/rules/react-native/index.ts
-import { FlatListKeyExtractor } from './require-flatlist-key-extractor';
-import { ImageDimensions } from './require-image-dimensions';
+import { FlatListKeyExtractor } from "./require-flatlist-key-extractor";
+import { ImageDimensions } from "./require-image-dimensions";
 // ... all rules in this category
 
 export const reactNativeRules: Rule[] = [
@@ -1323,7 +1364,7 @@ ESLint 9's flat config (`eslint.config.js`) moved away from the cascading direct
     "**/*.spec.{ts,tsx,js,jsx}",
     "e2e/**",
     "**/build/**",
-    "**/dist/**"
+    "**/dist/**",
   ],
 
   // Rule configuration.
@@ -1331,20 +1372,20 @@ ESLint 9's flat config (`eslint.config.js`) moved away from the cascading direct
   "rules": {
     "no-console-log": "off",
     "require-accessibility-label": "error",
-    "no-inline-styles": ["warn", { "allowStyleProp": false }]
+    "no-inline-styles": ["warn", { "allowStyleProp": false }],
   },
 
   // Category-level severity overrides. Applied before individual rule overrides.
   "categories": {
     "accessibility": "error",
-    "code-quality": "warn"
+    "code-quality": "warn",
   },
 
   // Severity mapping for terminal output
   "severity": {
     "error": { "icon": "✖", "color": "red" },
     "warn": { "icon": "⚠", "color": "yellow" },
-    "info": { "icon": "ℹ", "color": "blue" }
+    "info": { "icon": "ℹ", "color": "blue" },
   },
 
   // Performance score weights (0-100 total)
@@ -1359,16 +1400,16 @@ ESLint 9's flat config (`eslint.config.js`) moved away from the cascading direct
       "react-native": 1.2,
       "accessibility": 1.0,
       "styles": 0.8,
-      "code-quality": 0.5
-    }
+      "code-quality": 0.5,
+    },
   },
 
   // Future: plugin configuration (Phase 2)
   // "plugins": ["@rn-audit/plugin-expo-image"],
-  
+
   // Future: preset/extends (Phase 2)
   // "extends": ["@rn-audit/preset-recommended"],
-  
+
   // Future: settings passed to rules (Phase 2)
   // "settings": {
   //   "reactNativeVersion": "0.76",
@@ -1415,7 +1456,7 @@ Defaults ──▶ Category overrides ──▶ Rule overrides ──▶ CLI fla
     "**/*.spec.{ts,tsx,js,jsx}",
     "e2e/**",
     "**/build/**",
-    "**/dist/**"
+    "**/dist/**",
   ],
 
   // Rules configuration
@@ -1423,13 +1464,11 @@ Defaults ──▶ Category overrides ──▶ Rule overrides ──▶ CLI fla
   "rules": {
     // Example: disable console.log warnings
     // "no-console-log": "off",
-
     // Example: make accessibility a hard error
     // "require-accessibility-label": "error",
-
     // Example: configure rule options
     // "no-inline-styles": ["warn", { "allowStyleProp": false }]
-  }
+  },
 }
 ```
 
@@ -1465,17 +1504,17 @@ interface Finding {
   description: string;
 
   // Severity level of this finding.
-  severity: 'error' | 'warn' | 'info';
+  severity: "error" | "warn" | "info";
 
   // Category this finding belongs to.
   category: Category;
 
   // File location (relative to project root)
   location: {
-    file: string;      // e.g., "src/screens/ProductList.tsx"
-    line: number;      // 1-indexed
-    column: number;    // 1-indexed
-    endLine?: number;  // For multi-line issues
+    file: string; // e.g., "src/screens/ProductList.tsx"
+    line: number; // 1-indexed
+    column: number; // 1-indexed
+    endLine?: number; // For multi-line issues
     endColumn?: number;
   };
 
@@ -1485,7 +1524,7 @@ interface Finding {
     lines: Array<{
       lineNumber: number;
       content: string;
-      isHighlighted: boolean;  // true for the primary line(s) with the issue
+      isHighlighted: boolean; // true for the primary line(s) with the issue
     }>;
   };
 
@@ -1497,10 +1536,10 @@ interface Finding {
   documentationUrl?: string;
 
   // Estimated performance impact of this issue.
-  estimatedImpact: 'high' | 'medium' | 'low';
+  estimatedImpact: "high" | "medium" | "low";
 
   // Estimated time to fix.
-  estimatedFixTime: 'quick' | 'moderate' | 'significant';
+  estimatedFixTime: "quick" | "moderate" | "significant";
 
   // Machine-readable tags for filtering/searching.
   // e.g., ["flatlist", "scroll-performance", "virtualization"]
@@ -1513,49 +1552,50 @@ interface Finding {
 
 ### 15.2 Field Rationale
 
-| Field | Why It Exists |
-|-------|---------------|
-| `id` | Enables deduplication, baselines ("ignore this specific finding"), and CI integration ("comment on the PR with this finding ID") |
-| `ruleId` | Links the finding back to its rule for filtering, disabling, and documentation lookups |
-| `title` | The quick scan — developers read this first. Must be specific enough to understand the issue without reading the description |
-| `description` | Full context for developers unfamiliar with the rule. Includes "why this matters" |
-| `severity` | Triage: errors block CI, warnings are advisory, info is educational |
-| `category` | Enables grouping in reports and category-level configuration |
-| `location` | Clickable in terminal and IDE. `file:line:column` is the universal code location format |
-| `codeFrame` | Shows the problematic code inline in the terminal. A developer should not need to open the file to understand the issue. Modeled after Babel and ESLint's code frames |
-| `recommendation` | The "what to do about it." Every finding must be actionable. If we can't tell the developer what to do, the rule is not ready |
-| `documentationUrl` | Deep link to the rule's full documentation (rationale, examples, exceptions) |
-| `estimatedImpact` | Helps developers prioritize. A high-impact FlatList issue should be fixed before a low-impact style duplication |
-| `estimatedFixTime` | Reduces the psychological barrier to fixing issues. "Quick fix (30s)" is more likely to get fixed than an undifferentiated warning |
-| `tags` | Powers future features: "show me all FlatList-related findings," "filter by performance impact," dashboard aggregation |
-| `futureFixAvailable` | Phase 2 readiness: tells the developer "this can be auto-fixed with --fix" — incentive to upgrade |
+| Field                | Why It Exists                                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                 | Enables deduplication, baselines ("ignore this specific finding"), and CI integration ("comment on the PR with this finding ID")                                      |
+| `ruleId`             | Links the finding back to its rule for filtering, disabling, and documentation lookups                                                                                |
+| `title`              | The quick scan — developers read this first. Must be specific enough to understand the issue without reading the description                                          |
+| `description`        | Full context for developers unfamiliar with the rule. Includes "why this matters"                                                                                     |
+| `severity`           | Triage: errors block CI, warnings are advisory, info is educational                                                                                                   |
+| `category`           | Enables grouping in reports and category-level configuration                                                                                                          |
+| `location`           | Clickable in terminal and IDE. `file:line:column` is the universal code location format                                                                               |
+| `codeFrame`          | Shows the problematic code inline in the terminal. A developer should not need to open the file to understand the issue. Modeled after Babel and ESLint's code frames |
+| `recommendation`     | The "what to do about it." Every finding must be actionable. If we can't tell the developer what to do, the rule is not ready                                         |
+| `documentationUrl`   | Deep link to the rule's full documentation (rationale, examples, exceptions)                                                                                          |
+| `estimatedImpact`    | Helps developers prioritize. A high-impact FlatList issue should be fixed before a low-impact style duplication                                                       |
+| `estimatedFixTime`   | Reduces the psychological barrier to fixing issues. "Quick fix (30s)" is more likely to get fixed than an undifferentiated warning                                    |
+| `tags`               | Powers future features: "show me all FlatList-related findings," "filter by performance impact," dashboard aggregation                                                |
+| `futureFixAvailable` | Phase 2 readiness: tells the developer "this can be auto-fixed with --fix" — incentive to upgrade                                                                     |
 
 ### 15.3 Severity Levels
 
-| Level | Icon | Meaning | Default CI Behavior |
-|-------|------|---------|-------------------|
-| `error` | ✖ | Definitively wrong. Causes performance degradation or crashes. Should block CI. | Exit code 1 |
-| `warn` | ⚠ | Likely problematic. May cause performance issues. Should be reviewed. | Does not fail CI (configurable via `--max-warnings`) |
-| `info` | ℹ | Educational. Points out patterns that could be improved. No performance impact. | Never fails CI |
+| Level   | Icon | Meaning                                                                         | Default CI Behavior                                  |
+| ------- | ---- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `error` | ✖    | Definitively wrong. Causes performance degradation or crashes. Should block CI. | Exit code 1                                          |
+| `warn`  | ⚠    | Likely problematic. May cause performance issues. Should be reviewed.           | Does not fail CI (configurable via `--max-warnings`) |
+| `info`  | ℹ    | Educational. Points out patterns that could be improved. No performance impact. | Never fails CI                                       |
 
 ### 15.4 Categories
 
-| Category | Description | Phase |
-|----------|-------------|-------|
-| `react` | React patterns: hooks, memo, callbacks, state | Phase 1 |
-| `react-native` | React Native specifics: FlatList, ScrollView, Image, Animated | Phase 1 |
-| `styles` | StyleSheet, inline styles, theme consistency, duplicated styles | Phase 1 |
-| `accessibility` | a11y labels, roles, hit targets, focus order | Phase 1 |
-| `dependencies` | Package analysis: duplicates, deprecated, oversized, incompatible | Phase 1 |
-| `assets` | Image optimization, dimensions, formats, duplicate assets | Phase 1 |
-| `code-quality` | Console.log, debugger statements, unused imports | Phase 1 |
-| `architecture` | Duplicate components, cyclic dependencies, folder structure | Phase 2 |
-| `expo` | Expo-specific: expo-image, expo-router, EAS config | Phase 2 |
-| `performance` | Future runtime-profiling results | Phase 3 |
+| Category        | Description                                                       | Phase   |
+| --------------- | ----------------------------------------------------------------- | ------- |
+| `react`         | React patterns: hooks, memo, callbacks, state                     | Phase 1 |
+| `react-native`  | React Native specifics: FlatList, ScrollView, Image, Animated     | Phase 1 |
+| `styles`        | StyleSheet, inline styles, theme consistency, duplicated styles   | Phase 1 |
+| `accessibility` | a11y labels, roles, hit targets, focus order                      | Phase 1 |
+| `dependencies`  | Package analysis: duplicates, deprecated, oversized, incompatible | Phase 1 |
+| `assets`        | Image optimization, dimensions, formats, duplicate assets         | Phase 1 |
+| `code-quality`  | Console.log, debugger statements, unused imports                  | Phase 1 |
+| `architecture`  | Duplicate components, cyclic dependencies, folder structure       | Phase 2 |
+| `expo`          | Expo-specific: expo-image, expo-router, EAS config                | Phase 2 |
+| `performance`   | Future runtime-profiling results                                  | Phase 3 |
 
 ### 15.5 Performance Score Calculation
 
 The performance score is a 0–100 number displayed prominently in the report. Its purpose is to:
+
 - Give a quick health assessment of the project
 - Enable trend tracking over time ("we went from 72 to 85 this sprint")
 - Gamify quality improvements
@@ -1593,6 +1633,7 @@ impactMultiplier:
 
 **Example:**
 A project with 3 error findings (all high-impact, react-native category) and 12 warning findings (mixed):
+
 ```
 errors:   3 × 10 × 1.2 × 1.0 = 36
 warnings: 12 × 3 × ~0.9 × ~0.65 = ~21
@@ -1677,6 +1718,7 @@ By implementing SARIF output in Phase 1, rn-audit integrates with every major CI
 ### 15.9 Extensibility of the Reporting System
 
 New formatters are added by:
+
 1. Creating a file in `src/reporter/formatters/`
 2. Exporting a function: `(report: Report) => string`
 3. Adding the formatter name to a formatter registry
@@ -1687,7 +1729,7 @@ interface Formatter {
   id: string;
   name: string;
   description: string;
-  contentType: 'text' | 'json' | 'html';
+  contentType: "text" | "json" | "html";
   format(report: Report, options: FormatOptions): string;
 }
 ```
@@ -1746,6 +1788,7 @@ npm install --save-dev @rn-audit/plugin-expo-image
 ### 16.4 Plugin Discovery
 
 Plugins are discovered at startup by the config module:
+
 1. Read `plugins` array from config
 2. For each plugin name, `require(pluginName)` — let Node.js module resolution find it
 3. Validate the exported object against the Plugin interface schema
@@ -1776,6 +1819,7 @@ Resolution is identical to ESLint's `extends`: each preset is loaded, its config
 ### 16.6 Why Not Phase 1?
 
 Building a plugin system in Phase 1 would:
+
 - Delay the initial release by months
 - Require solving hard problems (plugin loading, version compatibility, schema validation, error messages for misconfigured plugins) before proving core value
 - Risk building the wrong plugin API (we don't yet know what plugins need)
@@ -1816,6 +1860,7 @@ The TS Compiler API is designed for batch compilation, not per-file linting. Cre
 **Fallback parser: Babel**
 
 For `.js` and `.jsx` files, and for projects without TypeScript:
+
 - Parse with `@babel/parser` (supports JSX, Flow, and modern JavaScript syntax)
 - The AST is a Babel AST, not a TS AST
 - Rules that require type information are skipped for these files (with an info-level note: "Type information not available for .js files")
@@ -1836,6 +1881,7 @@ Cache Key = SHA256(
 ```
 
 **Cache invalidation:**
+
 - File content changed → hash mismatch → cache miss
 - Rule configuration changed → hash mismatch → cache miss
 - Tool version changed → hash mismatch → cache miss (rules may have changed between versions)
@@ -1857,6 +1903,7 @@ ESLint uses a flat file cache. For our scale (thousands of files, not millions),
 4. **The cache makes this viable.** The cold scan is slow (~30s) but the warm scan is fast (~2s). Developers experience the warm scan most of the time.
 
 **Phase 2+ concurrency:** For larger projects (5,000+ files), worker threads can be introduced for:
+
 - File reading (I/O-bound, trivially parallelizable)
 - JavaScript file parsing with Babel (no shared state)
 - Rule execution on already-parsed ASTs (stateless, trivially parallelizable)
@@ -1914,6 +1961,7 @@ The guiding principle: **every bug fix adds a test first.** Regression tests are
 **Coverage target:** > 90% for all modules in `src/config/`, `src/utils/`, `src/reporter/scorer.ts`, `src/cache/`.
 
 **Example patterns:**
+
 - Config schema: valid config passes, invalid config produces specific error messages
 - Score calculation: known findings produce expected scores
 - Cache: put + get roundtrip, corrupted cache detection, pruning of stale entries
@@ -1923,6 +1971,7 @@ The guiding principle: **every bug fix adds a test first.** Regression tests are
 **What:** Each rule is tested against pairs of input files: a "valid" (should produce no findings) and "invalid" (should produce expected findings) file. This is the pattern used by ESLint and typescript-eslint.
 
 **Structure:**
+
 ```
 tests/fixtures/
   require-flatlist-key-extractor/
@@ -1936,6 +1985,7 @@ tests/fixtures/
 ```
 
 **Test runner:** For each fixture directory:
+
 1. Parse each file in `valid/` → assert zero findings
 2. Parse each file in `invalid/` → assert expected findings (rule ID, message, line, column)
 
@@ -1947,6 +1997,7 @@ Rules are the "product." Their correctness cannot be verified by unit testing he
 **What:** Run the full tool against a known project and snapshot the output. Used to catch regressions in reporting, scoring, or the interaction between multiple rules.
 
 **Structure:**
+
 ```
 tests/__snapshots__/
   full-scan-terminal.txt
@@ -1961,6 +2012,7 @@ tests/__snapshots__/
 **What:** End-to-end tests using the CLI entry point against real project directories.
 
 **Structure:**
+
 ```
 tests/integration/
   fixtures/
@@ -1978,6 +2030,7 @@ tests/integration/
 ```
 
 **Test scenarios:**
+
 - `rn-audit` in a basic React Native project → exit code 1 (errors found), expected output contains specific findings
 - `rn-audit --format json` → valid JSON output, parseable
 - `rn-audit --no-cache` → produces same results as cached run
@@ -1991,6 +2044,7 @@ tests/integration/
 **What:** Verify argument parsing, help text, error messages, exit codes.
 
 **Scenarios:**
+
 - `rn-audit --help` → prints help text, exit 0
 - `rn-audit --invalid-flag` → prints error, exit 2
 - `rn-audit --config nonexistent.json` → prints "config file not found", exit 2
@@ -2040,6 +2094,7 @@ Each combination runs: lint → typecheck → unit tests → rule fixture tests 
 ### 18.5 Performance Regression Testing
 
 A dedicated CI job runs the tool against a large synthetic project (5,000 generated React Native files) and asserts that:
+
 - Cold scan completes in < 60 seconds (more lenient than the dev target — CI is slower)
 - Warm scan completes in < 5 seconds
 - Memory usage stays under 1 GB
@@ -2181,6 +2236,7 @@ src/engine/
 ```
 
 The rule execution engine. This is the heart of the tool. It:
+
 - Maintains the rule registry
 - Walks ASTs
 - Dispatches to rules
@@ -2261,27 +2317,27 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 
 ### 20.2 Every File Explained (Key Files)
 
-| File | Purpose | Why It Exists |
-|------|---------|---------------|
-| `src/index.ts` | Public API for programmatic use | Enables `import { scan } from 'rn-audit'` for VS Code extension, CI scripts, etc. |
-| `src/cli.ts` | CLI entry point (`bin` in package.json) | Thin wrapper that calls the CLI module. Separate from `src/index.ts` so the API and CLI are different entry points |
-| `src/types/finding.ts` | Finding interface and related types | Single source of truth for what a Finding is. Every module depends on this |
-| `src/types/rule.ts` | Rule interface | The contract between the engine and every rule. Changing this interface is a breaking change |
-| `src/types/config.ts` | Configuration types | Typed representation of the config schema |
-| `src/config/defaults.ts` | Hardcoded defaults | Every configurable value has a default here. Generated config files reference these |
-| `src/config/schema.ts` | JSON Schema for config validation | Machine-validatable definition of valid config. Used by the loader and by `rn-audit init` |
-| `src/rules/index.ts` | Rule registry (built-in) | Central list of all built-in rules. The engine imports this file to register built-in rules |
-| `src/reporter/scorer.ts` | Performance score calculation | Isolated so it can be unit-tested exhaustively with known inputs and expected outputs |
-| `package.json` | npm package manifest | Standard. `bin` field points to compiled CLI. `main` field points to compiled API. `files` field controls what's published |
-| `tsconfig.json` | TypeScript config for development | Used by the IDE for IntelliSense. Less strict than the build config |
-| `tsconfig.build.json` | TypeScript config for production build | Stricter. `declaration: true` for `.d.ts` generation. Excludes tests |
-| `vitest.config.ts` | Test runner configuration | Vitest configuration: globals, coverage thresholds, test environment |
-| `CHANGELOG.md` | Release history | Auto-generated from conventional commits using `standard-version` or `changesets` |
-| `LICENSE` | Apache 2.0 | Permissive, enterprise-friendly, compatible with React Native (MIT) |
-| `CODE_OF_CONDUCT.md` | Contributor Covenant | Standard for open-source projects. Required for many corporate contribution policies |
-| `CONTRIBUTING.md` | How to contribute | Setup instructions, development workflow, testing instructions, PR process |
-| `SECURITY.md` | Security policy and reporting | Where to report vulnerabilities, supported versions, response timeline |
-| `SUPPORT.md` | How to get help | Links to documentation, issues, discussions, community channels |
+| File                     | Purpose                                 | Why It Exists                                                                                                              |
+| ------------------------ | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `src/index.ts`           | Public API for programmatic use         | Enables `import { scan } from 'rn-audit'` for VS Code extension, CI scripts, etc.                                          |
+| `src/cli.ts`             | CLI entry point (`bin` in package.json) | Thin wrapper that calls the CLI module. Separate from `src/index.ts` so the API and CLI are different entry points         |
+| `src/types/finding.ts`   | Finding interface and related types     | Single source of truth for what a Finding is. Every module depends on this                                                 |
+| `src/types/rule.ts`      | Rule interface                          | The contract between the engine and every rule. Changing this interface is a breaking change                               |
+| `src/types/config.ts`    | Configuration types                     | Typed representation of the config schema                                                                                  |
+| `src/config/defaults.ts` | Hardcoded defaults                      | Every configurable value has a default here. Generated config files reference these                                        |
+| `src/config/schema.ts`   | JSON Schema for config validation       | Machine-validatable definition of valid config. Used by the loader and by `rn-audit init`                                  |
+| `src/rules/index.ts`     | Rule registry (built-in)                | Central list of all built-in rules. The engine imports this file to register built-in rules                                |
+| `src/reporter/scorer.ts` | Performance score calculation           | Isolated so it can be unit-tested exhaustively with known inputs and expected outputs                                      |
+| `package.json`           | npm package manifest                    | Standard. `bin` field points to compiled CLI. `main` field points to compiled API. `files` field controls what's published |
+| `tsconfig.json`          | TypeScript config for development       | Used by the IDE for IntelliSense. Less strict than the build config                                                        |
+| `tsconfig.build.json`    | TypeScript config for production build  | Stricter. `declaration: true` for `.d.ts` generation. Excludes tests                                                       |
+| `vitest.config.ts`       | Test runner configuration               | Vitest configuration: globals, coverage thresholds, test environment                                                       |
+| `CHANGELOG.md`           | Release history                         | Auto-generated from conventional commits using `standard-version` or `changesets`                                          |
+| `LICENSE`                | Apache 2.0                              | Permissive, enterprise-friendly, compatible with React Native (MIT)                                                        |
+| `CODE_OF_CONDUCT.md`     | Contributor Covenant                    | Standard for open-source projects. Required for many corporate contribution policies                                       |
+| `CONTRIBUTING.md`        | How to contribute                       | Setup instructions, development workflow, testing instructions, PR process                                                 |
+| `SECURITY.md`            | Security policy and reporting           | Where to report vulnerabilities, supported versions, response timeline                                                     |
+| `SUPPORT.md`             | How to get help                         | Links to documentation, issues, discussions, community channels                                                            |
 
 ### 20.3 What Is Intentionally Absent
 
@@ -2298,17 +2354,17 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 
 ### 21.1 Phase 1 (MVP — 3-4 months, 1-2 engineers)
 
-| Milestone | Deliverables | Target |
-|-----------|-------------|--------|
-| **M1: Foundation** | Project scaffold, TypeScript build, CLI framework, argument parsing, project type detection | Week 2 |
-| **M2: Scanner + Parser** | File discovery with glob + gitignore, TS Compiler API integration, Babel fallback, error handling | Week 4 |
-| **M3: Rule Engine** | Rule interface, rule registry, AST walker, visitor dispatch, fault isolation, finding collection | Week 6 |
-| **M4: First Rules** | Implement 5 rules (FlatList keyExtractor, inline styles, image dimensions, accessibility labels, nested ScrollViews) | Week 8 |
-| **M5: Reporter** | Stylish terminal formatter, JSON formatter, performance scoring, color output | Week 10 |
-| **M6: Configuration** | Config file loading, JSON Schema validation, CLI flag merging, `rn-audit init` | Week 11 |
-| **M7: Caching** | Content-hash-based file cache, cache invalidation, `--no-cache`, `--clear-cache` | Week 12 |
-| **M8: Polish** | Remaining rules, error messages, help text, documentation, benchmark suite, CI setup, test coverage | Week 14 |
-| **M9: Release** | npm publish, announcement blog post, documentation site, example repository | Week 16 |
+| Milestone                | Deliverables                                                                                                         | Target  |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------- |
+| **M1: Foundation**       | Project scaffold, TypeScript build, CLI framework, argument parsing, project type detection                          | Week 2  |
+| **M2: Scanner + Parser** | File discovery with glob + gitignore, TS Compiler API integration, Babel fallback, error handling                    | Week 4  |
+| **M3: Rule Engine**      | Rule interface, rule registry, AST walker, visitor dispatch, fault isolation, finding collection                     | Week 6  |
+| **M4: First Rules**      | Implement 5 rules (FlatList keyExtractor, inline styles, image dimensions, accessibility labels, nested ScrollViews) | Week 8  |
+| **M5: Reporter**         | Stylish terminal formatter, JSON formatter, performance scoring, color output                                        | Week 10 |
+| **M6: Configuration**    | Config file loading, JSON Schema validation, CLI flag merging, `rn-audit init`                                       | Week 11 |
+| **M7: Caching**          | Content-hash-based file cache, cache invalidation, `--no-cache`, `--clear-cache`                                     | Week 12 |
+| **M8: Polish**           | Remaining rules, error messages, help text, documentation, benchmark suite, CI setup, test coverage                  | Week 14 |
+| **M9: Release**          | npm publish, announcement blog post, documentation site, example repository                                          | Week 16 |
 
 ### 21.2 Phase 2 (3-4 months after Phase 1)
 
@@ -2366,6 +2422,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 **Risk:** Static analysis is inherently imprecise. A rule might flag code that is actually correct (false positive) or miss code that is actually wrong (false negative). Too many false positives and developers disable the rule or stop using the tool.
 
 **Mitigation:**
+
 - Every rule must include real-world test fixtures from popular open-source React Native apps (to verify they don't flag correct code)
 - Rules are `"warn"` by default, not `"error"` — only rules with extremely low false-positive rates (like `require-flatlist-key-extractor`) are `"error"` by default
 - Rules include `// rn-audit-disable-next-line` comments for suppression (Phase 1.1)
@@ -2376,6 +2433,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 **Risk:** Building a great tool that nobody uses. Developer tools are a crowded market. rn-audit competes for attention with ESLint, Biome, and established workflows.
 
 **Mitigation:**
+
 - Target the specific pain point: React Native performance. This is a niche that no existing tool fills well
 - Zero-config: the tool must provide value on the first run, with no setup
 - Beautiful, clear terminal output: first impressions matter
@@ -2386,6 +2444,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 ### 22.5 Trade-off: Correctness vs Coverage
 
 **Trade-off:** The tool could either:
+
 - (A) Have fewer rules with very high accuracy (few false positives), or
 - (B) Have many rules with variable accuracy (more findings, more noise)
 
@@ -2396,6 +2455,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 ### 22.6 Trade-off: Simplicity vs Power
 
 **Trade-off:** The tool could either:
+
 - (A) Be simple: scan files, run rules, print findings, exit. Easy to understand and contribute to, or
 - (B) Be powerful: worker threads, incremental analysis, watch mode, complicated caching, IDE integration
 
@@ -2412,6 +2472,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 **Goal:** Make rn-audit extensible and CI-native.
 
 **Features:**
+
 - Plugin system (third-party rules)
 - `--fix` auto-fix for applicable rules
 - `--ci` mode for CI/CD pipelines
@@ -2428,6 +2489,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 **Goal:** Add runtime data and integrate into developer workflows.
 
 **Features:**
+
 - Optional Babel/Metro plugin that collects runtime performance data
 - Combined static + runtime analysis
 - `rn-audit profile` command (build + run + profile + report)
@@ -2441,6 +2503,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 **Goal:** Use ML/AI for advanced analysis, scale to organizations.
 
 **Features:**
+
 - AI-powered recommendations (opt-in, local-first)
 - AI-assisted auto-fixes for complex refactoring patterns
 - Organization-wide quality dashboard
@@ -2452,6 +2515,7 @@ GitHub-specific configuration: CI workflows, issue templates, PR templates, CODE
 ### 23.4 Long-Term Vision (2+ Years)
 
 rn-audit becomes the **standard quality toolkit for React Native**, analogous to:
+
 - **ESLint** for JavaScript linting
 - **Prettier** for code formatting
 - **Lighthouse** for web performance
@@ -2474,12 +2538,14 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** TypeScript.
 
 **Rationale:**
+
 - The target users are TypeScript/JavaScript developers. Contributors should not need to learn a new language.
 - The TypeScript Compiler API (our primary parser) is a TypeScript/JavaScript API — using it from Rust or Go would require FFI or WASM, adding complexity.
 - TypeScript provides type safety for the tool's own code, which is critical for a tool with a complex internal model (ASTs, rules, findings, configs).
 - ESLint, Babel, and Metro are all written in TypeScript/JavaScript. This is the ecosystem norm.
 
 **Alternatives considered:**
+
 - **Rust** (Biome's choice): Faster, but requires contributors to know Rust. The React Native community is overwhelmingly TypeScript/JavaScript. The FFI cost for the TS Compiler API is prohibitive.
 - **Go**: Same contributor and FFI issues as Rust, with the additional downside of no existing AST tooling for TypeScript.
 - **Plain JavaScript**: Loses the type safety that makes the tool maintainable at scale. TypeScript is the standard for new Node.js projects in 2026.
@@ -2493,17 +2559,20 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** TypeScript Compiler API as primary parser, Babel as fallback for `.js` files.
 
 **Rationale:**
+
 - **Type information**: The TS Compiler API is the only option that provides full type information. Rules like "useMemo with unnecessary dependencies" or "useCallback missing dependencies" require knowing the types of variables referenced in the callback.
 - **Module resolution**: The TS Compiler API resolves imports. Rules about dependencies and unused files need this.
 - **Control flow analysis**: The TS Compiler API can determine if a variable is definitely assigned, if a function always returns, etc. This enables sophisticated rules.
 - **React Native ecosystem**: React Native projects are overwhelmingly TypeScript. The React Native template has been TypeScript-first since 0.71.
 
 **Costs accepted:**
+
 - TS Compiler API is slower than Babel for individual file parsing (2-3x). Mitigated by caching.
 - TS Compiler API is synchronous (not async-friendly). Mitigated by Phase 1's single-threaded model.
 - TS Compiler API has a learning curve for contributors. Mitigated by abstraction — most rule authors don't interact with it directly.
 
 **Alternatives considered:**
+
 - **Babel only**: No type information. Rules limited to syntactic patterns. Faster parsing but less valuable findings. Would lock us out of Phase 3+ capabilities (type-aware refactoring, AI recommendations that need type context).
 - **@typescript-eslint/parser**: Produces ESTree ASTs with optional type information. Good middle-ground, but the type information is less rich than the TS Compiler API. The ESTree AST also loses some TypeScript-specific constructs (like `as` expressions and `enum` declarations) that some rules may need.
 - **SWC / oxc**: Very fast (Rust-based), but no type information, immature plugin ecosystem, and requires native compilation. Better suited for Phase 3+ as an optional speed-boost parser.
@@ -2517,12 +2586,14 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** Visitor pattern, modeled after ESLint's `visitor` object. Each rule declares which node types it handles. The engine dispatches accordingly.
 
 **Rationale:**
+
 - **Proven pattern**: ESLint has used the visitor pattern for over a decade. It works, it's well-understood, and it's the mental model contributors expect.
 - **Efficient**: The engine only calls rules for node types they've declared interest in. Rules that don't care about `ReturnStatement` never see `ReturnStatement` nodes.
 - **Composable**: Multiple rules can observe the same node type without knowing about each other.
 - **Testable**: A rule's behavior is fully determined by its visitor handlers and the AST it receives. No global state, no ordering dependencies.
 
 **Alternatives considered:**
+
 - **Recursive walk in each rule**: Each rule walks the entire AST independently. Simpler for rule authors (no visitor pattern to learn) but O(R × N) where R = rules and N = nodes. A project with 20 rules and 10,000 AST nodes per file would do 200,000 traversals. Rejected for performance.
 - **Path-based queries (like Semgrep or AST-grep)**: Rules are patterns (e.g., `FlatList({...})` without `keyExtractor`). More expressive for pattern matching, less expressive for logic that requires type information or cross-node analysis. Also introduces a query language that contributors must learn.
 
@@ -2535,6 +2606,7 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** Single config file at the project root for Phase 1. Cascading config deferred to Phase 2.
 
 **Rationale:**
+
 - **Simplicity**: One config file is easier to explain, implement, and debug than cascading. "Put `.rnauditrc.json` in your project root" is a complete sentence.
 - **Industry trend**: ESLint 9 moved to a single flat config. Biome uses a single config. Prettier uses a single config. The industry has converged on single-file config.
 - **Sufficient for Phase 1**: Without plugins, presets, or per-directory rule overrides, cascading config provides negligible value.
@@ -2542,6 +2614,7 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Future-proofing:** The config loading module accepts an array of config sources (for cascading), but in Phase 1 the array always has one element: the project root config. Adding cascading means finding additional config files in subdirectories and appending them to the array. No interface changes.
 
 **Alternatives considered:**
+
 - **Cascading config (`.rnauditrc` in every directory)**: More powerful (per-directory overrides) but more complex. ESLint moved away from this. Rejected for Phase 1.
 - **CLI-only config (flags for everything)**: Simple but doesn't scale past ~10 configurable options. Rejected because we expect 50+ rules with per-rule options.
 
@@ -2554,12 +2627,14 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** Numeric weighted deduction model. Start at 100, subtract weighted penalties for each finding. See Section 15.5 for the formula.
 
 **Rationale:**
+
 - **Familiar**: Lighthouse, SonarQube, and Code Climate use numeric 0-100 scores. Developers understand this scale.
 - **Transparent**: The formula is documented. A developer can compute it manually. No black box.
 - **Configurable**: Teams can adjust weights to match their priorities.
 - **Gamifiable**: Going from 72 to 78 is measurable progress. A letter grade of "B" stays "B" for a long time.
 
 **Alternatives considered:**
+
 - **Pass/Fail (error threshold only)**: Too coarse. A project with 1 error and a project with 50 errors are both "fail." No incentive for incremental improvement.
 - **Letter grades (A/B/C/D/F)**: Subjective grade boundaries. Creates arguments about "why is this a B and not a B+?" Hard to track small improvements.
 - **ML-based scoring**: Unpredictable, hard to explain, and requires training data. Violates the "no AI in Phase 1" constraint.
@@ -2573,12 +2648,14 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** Flat files in `node_modules/.cache/rn-audit/`. One cache entry per analyzed file, keyed by content hash.
 
 **Rationale:**
+
 - **No native dependencies**: SQLite requires `better-sqlite3` (native compilation) or `sql.js` (WASM). Flat files use only Node.js built-in `fs` and `crypto`.
 - **Debuggable**: A developer can `cat node_modules/.cache/rn-audit/<hash>.json` to inspect cached findings.
 - **CI-friendly**: Cache can be persisted across CI runs by caching the `node_modules/.cache/rn-audit/` directory.
 - **Bounded complexity**: For the scale we target (< 10,000 files), a flat file cache is more than fast enough. File-system lookups by hash are O(1) on modern SSDs.
 
 **Alternatives considered:**
+
 - **SQLite**: Better for 100,000+ cached entries, transaction safety, and concurrent access. Over-engineering for Phase 1. Can be added as an optional backend later.
 - **In-memory only**: Fastest, but loses cache between tool invocations. The warm-scan scenario (< 2 seconds) depends on persistent cache.
 
@@ -2591,6 +2668,7 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** Follow ESLint's convention: 0 = success (no errors), 1 = linting errors found, 2 = runtime error.
 
 **Rationale:**
+
 - **Industry standard**: CI systems, pre-commit hooks, and developer muscle memory assume ESLint's exit code convention.
 - **Semantic clarity**: 0 = "your code is fine," 1 = "your code has issues," 2 = "the tool itself broke."
 - **Compatibility**: Drop-in replacement for `eslint` in CI pipelines (same exit codes, same `--max-warnings` semantics).
@@ -2604,12 +2682,14 @@ The community maintains hundreds of rules through plugins. Major React Native li
 **Decision:** Apache 2.0.
 
 **Rationale:**
+
 - **Enterprise-friendly**: Apache 2.0 includes explicit patent grants, which enterprise legal teams prefer.
 - **Compatible with React Native**: React Native is MIT. Apache 2.0 is compatible with MIT.
 - **Used by major tools**: TypeScript is Apache 2.0. ESLint is MIT (but Facebook/Meta projects like React and React Native are MIT).
 - **Permissive**: Allows use in proprietary software. The goal is maximum adoption.
 
 **Alternatives considered:**
+
 - **MIT**: Simpler, more common in the React Native ecosystem. Apache 2.0 chosen for patent protection.
 - **GPL**: Too restrictive. Would prevent use in proprietary apps, which conflicts with the goal of becoming the standard tool for all React Native development.
 
@@ -2620,6 +2700,7 @@ The community maintains hundreds of rules through plugins. Major React Native li
 ### 25.1 Repository Health
 
 **Before public launch, the repository must have:**
+
 - [x] Comprehensive README with badges (npm version, CI status, license, downloads)
 - [x] CONTRIBUTING.md with setup instructions, development workflow, and testing guide
 - [x] CODE_OF_CONDUCT.md (Contributor Covenant 2.1)
@@ -2658,18 +2739,21 @@ Rule-Specific: false-positive, false-negative, rule-enhancement
 ### 25.4 Community Building
 
 **First 100 users:**
+
 - Announce on React Native subreddit, Twitter/X, and React Native Discord
 - Blog post on the Expo blog (partnership)
 - Demo at React Native meetups and conferences
 - Reach out to prominent React Native developers for feedback
 
 **First 1,000 users:**
+
 - Rule proposal process: any user can propose a rule via a structured issue template, community votes, accepted rules are implemented by maintainers or the proposer
 - Contributor ladder: casual contributor → regular contributor → triage team → maintainer
 - Swag for contributors (stickers, t-shirts for significant contributions)
 - Office hours (bi-weekly video call for contributors)
 
 **Sustainability:**
+
 - GitHub Sponsors for the lead maintainer
 - Open Collective for project expenses (domain, CI minutes, swag)
 - Corporate sponsorship tiers (companies that depend on rn-audit sponsor its development)
@@ -2681,12 +2765,14 @@ Rule-Specific: false-positive, false-negative, rule-enhancement
 ### 26.1 Documentation Sites
 
 **GitHub (`/docs/`):**
+
 - Architecture documentation (for contributors)
 - Rule documentation (one page per rule)
 - API documentation (for programmatic users)
 - Contributing guide
 
 **Documentation Website (Phase 2):**
+
 - Getting started guide
 - Rule search/filter
 - Interactive examples
@@ -2697,7 +2783,7 @@ Rule-Specific: false-positive, false-negative, rule-enhancement
 
 Every rule's documentation page follows this template:
 
-```markdown
+````markdown
 # rule-id
 
 **Severity:** warn (configurable)
@@ -2705,19 +2791,24 @@ Every rule's documentation page follows this template:
 **Estimated Fix Time:** quick
 
 ## Overview
+
 One-paragraph description of what the rule checks and why.
 
 ## Rationale
+
 Why this matters. Link to React Native documentation, performance guides, or research.
 
 ## Examples
 
 ### ❌ Incorrect
+
 ```tsx
 // Code that triggers this rule
 ```
+````
 
 ### ✅ Correct
+
 ```tsx
 // Code that passes this rule
 ```
@@ -2733,14 +2824,18 @@ Why this matters. Link to React Native documentation, performance guides, or res
 ```
 
 ## When Not to Use
+
 Cases where this rule might be overly strict and should be disabled.
 
 ## Related Rules
+
 - [other-rule](./other-rule.md) — Related rule description
 
 ## References
+
 - [React Native docs: ...](https://...)
 - [Related blog post / research](https://...)
+
 ```
 
 ### 26.3 Generated Documentation
@@ -2794,3 +2889,4 @@ A CI script (`scripts/generate-rule-docs.ts`) validates that every rule has a co
 *This document is a living artifact. It will be updated as implementation reveals new constraints and as community feedback shapes the roadmap. All substantive changes to this document require a reviewed PR against the `main` branch.*
 
 *Last updated: 2026-07-08*
+```

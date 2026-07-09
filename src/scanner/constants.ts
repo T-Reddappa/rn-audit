@@ -63,12 +63,7 @@ export const ALWAYS_IGNORED_DIRECTORIES: ReadonlySet<string> = new Set([
  *
  * Future: `.mts`, `.cts`, `.mjs`, `.cjs`
  */
-export const SOURCE_EXTENSIONS: ReadonlySet<string> = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-]);
+export const SOURCE_EXTENSIONS: ReadonlySet<string> = new Set([".ts", ".tsx", ".js", ".jsx"]);
 
 // ---------------------------------------------------------------------------
 // Safety limits
